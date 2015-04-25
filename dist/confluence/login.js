@@ -3,6 +3,8 @@
 var https = require('https');
 var conf = require('../../conf.json');
 
+var styl = require('../confluence/stylus-gen.js');
+
 function createRequest(path, method) {
     var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
     return {
@@ -30,8 +32,8 @@ function getPageContent(pageId, resolve, reject) {
         });
         res.on('end', function () {
             var result = JSON.parse(respond);
-            var body = result.body.view;
-            console.log(body);
+            var body = result.body.view.value;
+            styl.write(body);
         });
     });
 }
@@ -66,5 +68,6 @@ function setPageContent(pageId) {
     R.end();
 }
 
-getPageContent(108139548);
-setPageContent(108139548);
+var darkScheme = 103777451;
+getPageContent(darkScheme);
+//setPageContent(108139548);
