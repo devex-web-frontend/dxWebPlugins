@@ -11,7 +11,7 @@ var SVNHelper = (function () {
 	function SVNHelper(cwd) {
 		_classCallCheck(this, SVNHelper);
 
-		console.log('create helper');
+		console.log('svn-constructor', cwd);
 	}
 
 	_createClass(SVNHelper, [{
