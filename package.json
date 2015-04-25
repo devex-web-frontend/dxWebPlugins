@@ -21,6 +21,7 @@
     "gulp-babel": "^5.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
-    "gulp-watch": "^4.2.4"
+    "gulp-watch": "^4.2.4",
+    "gulp-crash-sound": "0.0.1"
   }
 }
