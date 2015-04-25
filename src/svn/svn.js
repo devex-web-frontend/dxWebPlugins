@@ -3,7 +3,7 @@ let Promise = require('promise');
 
 class SVNHelper {
 	constructor(cwd) {
-		console.log('create helper');
+		console.log('svn-constructor', cwd);
 	}
 
 	add(pattern) {

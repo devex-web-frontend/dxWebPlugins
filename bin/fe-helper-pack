@@ -2,6 +2,18 @@
 
 'use strict';
 
-var qq = require('../index.js');
+var program = require('commander'),
+	helpers = require('../index.js'),
+	pkg = require('./../package.json');
 
-console.log(qq.release.test());
+	program.version(pkg.version)
+		.option('--type [type]', 'release type')
+		.parse(process.argv);
+
+
+console.log(program.type);
+//helpers.release.test();
+
+if (program.type) {
+	helpers.release.performRelease(program.type);
+}
