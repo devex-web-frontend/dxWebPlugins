@@ -8,11 +8,7 @@ gulp.task('default', function() {
 		.pipe(watch('./src/**/*.js', {verbose: true}))
 		.pipe(babel(), {verbose: true})
 		.pipe(rename(function(path) {
-			path.dirname = '.';
+			path.dirname = path.dirname.replace('src', '.');
 		}))
 		.pipe(gulp.dest('dist'));
-
-	 //watch('./src/**/*.js', function() {
-
-	//})
 });
