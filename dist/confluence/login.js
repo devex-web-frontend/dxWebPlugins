@@ -12,7 +12,8 @@ function createRequest(path, method) {
         path: path,
         method: method || 'GET',
         headers: {
-            Authorization: 'Basic ' + auth
+            Authorization: 'Basic ' + auth,
+            'Content-Type': 'application/json'
         },
         rejectUnauthorized: false,
         requestCert: true,
@@ -30,8 +31,7 @@ function getPageContent(pageId, resolve, reject) {
         res.on('end', function () {
             var result = JSON.parse(respond);
             var body = result.body.view;
-            version = result.version.number;
-            console.log(result);
+            console.log(body);
         });
     });
 }
@@ -42,17 +42,16 @@ function setPageContent(pageId) {
         data = {
         id: pageId,
         type: 'page',
-        version: { number: 3 },
-        title: 'test',
+        version: { number: 4 },
+        title: '333',
         body: {
-            view: {
-                value: '<p>This is a new page</p>'
+            storage: {
+                value: '<p>This is a new page</p>',
+                representation: 'storage'
             }
         }
     };
     data = JSON.stringify(data);
-    console.log(data);
-    req.headers['Content-Type'] = 'application/json';
     req.headers['Content-Length'] = data.length;
     var R = https.request(req, function (res) {
         var respond = '';
@@ -61,12 +60,11 @@ function setPageContent(pageId) {
         });
         res.on('end', function () {
             var result = JSON.parse(respond);
-            console.log(result);
         });
     });
     R.write(data);
     R.end();
 }
 
-//getPageContent(108139543);
-setPageContent(108139543);
+getPageContent(108139548);
+setPageContent(108139548);
