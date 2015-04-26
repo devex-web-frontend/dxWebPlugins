@@ -21,6 +21,6 @@ gulp.task('default', function() {
 
 
 gulp.task("jsdoc", function() {
-    gulp.src("./code/*.js")
-        .pipe(jsdoc('./api'))
+    gulp.src("./test/in/*.js")
+        .pipe(jsdoc('./test/out/api'))
 });

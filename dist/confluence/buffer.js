@@ -2,14 +2,12 @@
 
 var https = require('https');
 var conf = require('../../conf.json');
-var styl = require('../confluence/stylus-gen.js');
-
-var darkScheme = 103777451;
-var chartScheme = 104825455;
 
 module.exports = {
-    write: setPageContent
+    write: setPageContent,
+    read: getPageContent
 };
+
 function createRequest(path, method) {
     var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
     return {
@@ -28,7 +26,7 @@ function createRequest(path, method) {
     };
 }
 
-function getPageContent(pageId, name) {
+function getPageContent(pageId, callback) {
     var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
     https.get(createRequest(path), function (res) {
         var respond = '';
@@ -37,9 +35,7 @@ function getPageContent(pageId, name) {
         });
         res.on('end', function () {
             var result = JSON.parse(respond);
-            var body = result.body.view.value;
-
-            styl.write(body, name);
+            callback(result);
         });
     });
 }
@@ -50,7 +46,7 @@ function setPageContent(pageId, newContent) {
         data = {
         id: pageId,
         type: 'page',
-        version: { number: 13 },
+        version: { number: 14 },
         title: '333',
         body: {
             storage: {
@@ -74,7 +70,3 @@ function setPageContent(pageId, newContent) {
     R.write(data);
     R.end();
 }
-
-getPageContent(darkScheme, 'darkScheme');
-//getPageContent(chartScheme, 'chartScheme');
-//setPageContent(108139548);
