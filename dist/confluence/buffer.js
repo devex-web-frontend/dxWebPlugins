@@ -1,7 +1,7 @@
 'use strict';
 
 var https = require('https');
-var conf = null; //|| require('../../conf1.json');
+var conf = require('../../conf.json');
 var prompt = require('prompt');
 
 var Promise = require('promise');
@@ -66,38 +66,62 @@ function createRequest(path, method) {
     return promise;
 }
 
-function getPageContent(pageId) {
-    var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
-    var promise = new Promise(function (resolve, reject) {
-        createRequest(path).then(function (request) {
-            https.get(request, function (res) {
-                var respond = '';
-                if (res.statusCode === 401) {
-                    reject(res.statusCode);
-                    return;
-                }
-                res.on('data', function (chunk) {
-                    respond += chunk;
-                });
-                res.on('end', function () {
-                    var result = JSON.parse(respond);
-                    resolve(result);
-                });
-            }).on('error', function (err) {
-                reject(err);
-            });
+function get(request, resolve, reject) {
+
+    https.get(request, function (res) {
+        var respond = '';
+        if (res.statusCode === 401) {
+            reject(res.statusCode);
+            return;
+        }
+        res.on('data', function (chunk) {
+            respond += chunk;
+        });
+        res.on('end', function () {
+            var result = JSON.parse(respond);
+            resolve(result);
+        });
+    }).on('error', function (err) {
+        reject(err);
+    });
+}
+
+function set(request, data, resolve, reject) {
+    var R = https.request(request, function (res) {
+        var respond = '';
+
+        res.on('data', function (chunk) {
+            respond += chunk;
+        });
+        res.on('end', function () {
+            var result = JSON.parse(respond);
+            if (!!result.statusCode) {
+                reject(result.statusCode + ': ' + result.message);
+                return;
+            }
+            resolve(result);
         });
     });
-    return promise;
+    R.on('error', function (err) {
+        reject(err);
+    });
+    R.write(data);
+    R.end();
+}
+
+function getPageContent(pageId) {
+    var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
+    return new Promise(function (resolve, reject) {
+        createRequest(path).then(function (request) {
+            get(request, resolve, reject);
+        });
+    });
 }
 
 function setPageContent(pageId, newContent) {
     var path = '/rest/api/content/' + pageId,
         data = {
         id: pageId,
-        type: 'page',
-        version: { number: 14 },
-        title: '333',
         body: {
             storage: {
                 value: newContent || '<p>This is a new page</p>',
@@ -106,20 +130,17 @@ function setPageContent(pageId, newContent) {
         }
     };
 
-    createRequest(path, 'PUT').then(function (request) {
-        data = JSON.stringify(data);
-        request.headers['Content-Length'] = data.length;
-        var R = https.request(request, function (res) {
-            var respond = '';
-            res.on('data', function (chunk) {
-                respond += chunk;
-            });
-            res.on('end', function () {
-                var result = JSON.parse(respond);
-                console.log(result);
-            });
-        });
-        R.write(data);
-        R.end();
+    return new Promise(function (resolve, reject) {
+        getPageContent(pageId).then(function (respond) {
+            data.version = { number: respond.version.number + 1 };
+            data.type = respond.type;
+            data.title = respond.title;
+            data = JSON.stringify(data);
+
+            createRequest(path, 'PUT').then(function (request) {
+                request.headers['Content-Length'] = data.length;
+                set(request, data, resolve, reject);
+            }, reject);
+        }, reject);
     });
 }

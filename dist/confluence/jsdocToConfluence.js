@@ -6,9 +6,6 @@ var path = require('path');
 
 var buffer = require('../confluence/buffer.js');
 
-function replaceAll(src, str, newStr) {
-    return src.replace(new RegExp(str, 'g'), newStr);
-}
 function getDoc() {
     process.chdir('test/out/api');
     glob('*[!.]??.html', function (er, files) {
@@ -18,7 +15,6 @@ function getDoc() {
         var buf = fs.readFileSync(filePath).toString();
 
         var result = prepareData(buf);
-        console.log(result);
         write(result);
     });
 }
@@ -33,7 +29,13 @@ function prepareData(data) {
     return data;
 }
 function write(data) {
-    buffer.write(108139548, data);
+    data = '4444';
+    buffer.write(108139548, data).then(function (result) {
+        console.log('Succesffuly written');
+    }, handleError);
 };
 
+function handleError(err) {
+    console.log('Error ', err);
+}
 getDoc();
