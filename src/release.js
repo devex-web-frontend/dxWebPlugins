@@ -6,6 +6,7 @@ let PackageFile = require('./release/PackageFile.class.js');
 let fs = require('fs');
 let path = require('path');
 let vcs = require('./release/vcs.js');
+let teamcity = require('./teamcity.js');
 
 function getProjectPackageFiles() {
 	return [PACKAGE_CFG, BOWER_CFG].reduce((result, fileName) => {
@@ -43,6 +44,9 @@ module.exports = {
 		return vcs.init()
 			.then(() => vcs.push(Object.keys(packageFiles), `[release ${version}]`))
 			.then(() => vcs.createTag(version))
-			.then(() => console.log(`version ${version} released`));
+			.then(() => {
+				teamcity.setReleaseBuildNumber();
+				console.log(`version ${version} released`);
+			});
 	}
 };
