@@ -3,16 +3,16 @@ var path = require('path');
 var cheerio = require('cheerio');
 
 module.exports = {
-    write : createStyl
+    write : create
 };
 
-function write(text)
-{
-    fs.writeFile(path.join(process.cwd(), "/test/out/styl/test.styl"), text, function (err) {
+function write(text) {
+    var filePath = "/test/out/styl/test.styl";
+    fs.writeFile(path.join(process.cwd(), filePath), text, function (err) {
         if (err) {
             return console.log(err);
         }
-        console.log("The file was saved!");
+        console.log("The file "+ filePath +" was saved!");
     });
 }
 
@@ -43,9 +43,22 @@ function createStyl(string, name) {
     Object
         .keys(map)
         .forEach(function(key){
-            result += '    '+ key + ' : ' + map[key] + ',';
+
+            result += '    '+ key + ' : ' + map[key];
             result += '\n';
         });
     result += name ? '};\n' : '';
-    write(result)
+    return result;
+}
+
+function create(dataMap) {
+    var result = '';
+
+    Object
+        .keys(dataMap)
+        .forEach(function(key) {
+
+            result += createStyl(dataMap[key], key);
+        });
+    write(result);
 }
