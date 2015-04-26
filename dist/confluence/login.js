@@ -7,6 +7,9 @@ var styl = require('../confluence/stylus-gen.js');
 var darkScheme = 103777451;
 var chartScheme = 104825455;
 
+module.exports = {
+    write: setPageContent
+};
 function createRequest(path, method) {
     var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
     return {
@@ -41,17 +44,17 @@ function getPageContent(pageId, name) {
     });
 }
 
-function setPageContent(pageId) {
+function setPageContent(pageId, newContent) {
     var path = '/rest/api/content/' + pageId,
         req = createRequest(path, 'PUT'),
         data = {
         id: pageId,
         type: 'page',
-        version: { number: 4 },
+        version: { number: 13 },
         title: '333',
         body: {
             storage: {
-                value: '<p>This is a new page</p>',
+                value: newContent || '<p>This is a new page</p>',
                 representation: 'storage'
             }
         }
@@ -65,12 +68,13 @@ function setPageContent(pageId) {
         });
         res.on('end', function () {
             var result = JSON.parse(respond);
+            console.log(result);
         });
     });
     R.write(data);
     R.end();
 }
 
-getPageContent(darkScheme, 'darkScheme');
+//getPageContent(darkScheme, 'darkScheme');
 //getPageContent(chartScheme, 'chartScheme');
 //setPageContent(108139548);

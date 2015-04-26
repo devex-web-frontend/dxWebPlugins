@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var path = require('path');
-var query = require('queryselector');
 var cheerio = require('cheerio');
 
 module.exports = {
