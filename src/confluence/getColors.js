@@ -1,29 +1,22 @@
 var buffer = require('./helpers/buffer.js');
 var styl = require('./helpers/stylusGenerator.js');
 
-var pageIds = [
-    {
+var pageIds = [{
         name: 'darkScheme',
-        id:103777451
-    },
-    {
+        id: 103777451
+    },{
         name: 'chartScheme',
-        id:104825455
-    }
-];
-var result = {};
+        id: 104825455
+    }],
+    result = {};
 
 function errorHandler(err) {
     console.log('Error: ',err);
 }
 
-function readAllPages() {
-    readPage(0);
-}
-
 function readPage(pageIndex) {
     var pageId = pageIds[pageIndex].id;
-    var pageName = pageIds[pageIndex].name
+    var pageName = pageIds[pageIndex].name;
     var nextPage = pageIds[pageIndex + 1];
 
    buffer.read(pageId).then(function(respond) {
@@ -35,6 +28,10 @@ function readPage(pageIndex) {
           styl.write(result);
       }
   }, errorHandler)
+}
+
+function readAllPages() {
+    readPage(0);
 }
 
 readAllPages();

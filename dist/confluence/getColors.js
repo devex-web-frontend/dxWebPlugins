@@ -9,15 +9,11 @@ var pageIds = [{
 }, {
     name: 'chartScheme',
     id: 104825455
-}];
-var result = {};
+}],
+    result = {};
 
 function errorHandler(err) {
     console.log('Error: ', err);
-}
-
-function readAllPages() {
-    readPage(0);
 }
 
 function readPage(pageIndex) {
@@ -34,6 +30,10 @@ function readPage(pageIndex) {
             styl.write(result);
         }
     }, errorHandler);
+}
+
+function readAllPages() {
+    readPage(0);
 }
 
 readAllPages();

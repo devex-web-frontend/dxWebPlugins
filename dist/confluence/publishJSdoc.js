@@ -11,22 +11,25 @@ var pages = {
     Ololo: 108139608
 
 };
-function getDoc() {
+
+function publishAll() {
     process.chdir('test/out/api');
     glob('*[!.]??.html', function (er, files) {
         delete files[files.indexOf('index.html')];
-        files.forEach(function (file) {
-            var name = file.slice(0, file.indexOf('.'));
-            var pageId = pages[name];
-            if (pageId) {
-                var filePath = path.join(process.cwd(), file);
-                var buf = fs.readFileSync(filePath).toString();
-
-                var result = prepareData(buf);
-                write(pageId, result);
-            }
-        });
+        files.forEach(processFile);
     });
+}
+
+function processFile(file) {
+    var name = file.slice(0, file.indexOf('.'));
+    var pageId = pages[name];
+    if (pageId) {
+        var filePath = path.join(process.cwd(), file);
+        var buf = fs.readFileSync(filePath).toString();
+
+        var result = prepareData(buf);
+        writeToConfluence(pageId, result);
+    }
 }
 
 function prepareData(data) {
@@ -49,13 +52,14 @@ function prepareData(data) {
     return data;
 }
 
-function write(pageId, data) {
+function writeToConfluence(pageId, data) {
     buffer.write(pageId, data).then(function (result) {
         console.log('Succesffuly written to ', pageId);
     }, handleError);
-};
+}
 
 function handleError(err) {
     console.log('Error ', err);
 }
-getDoc();
+
+publishAll();
