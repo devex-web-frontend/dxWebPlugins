@@ -11,11 +11,14 @@ var versionPartIndexes = [MAJOR, MINOR, PATCH].reduce(function (prevValue, curre
 	return prevValue;
 }, {});
 
-console.log('indexes', versionPartIndexes);
-
 var SVNHelpers = new (require('./svn/svn.js'))(PROJECT_ROOT);
 var fs = require('fs');
 var path = require('path');
+var releaseVersion = undefined;
+
+function getFullFileName(fileName) {
+	return path.join(PROJECT_ROOT, fileName);
+}
 
 function bumpVersion(version, releaseType) {
 	var affectedIndex = versionPartIndexes[releaseType];
@@ -31,18 +34,24 @@ function bumpVersion(version, releaseType) {
 		return value;
 	}).join('.');
 }
+function setReleaseVersion(version) {
+	releaseVersion = version;
+}
 
 function updateFile(fullFileName, releaseType) {
 	var fileData = JSON.parse(fs.readFileSync(fullFileName, 'utf8'));
 	var currentVersion = fileData.version;
-	fileData.version = bumpVersion(currentVersion, releaseType);
+	var newVersion = bumpVersion(currentVersion, releaseType);
+
+	fileData.version = newVersion;
+	setReleaseVersion(newVersion);
 
 	fs.writeFileSync(fullFileName, JSON.stringify(fileData, null, 2));
 }
 
 function releasePackage(releaseType) {
 	packageFiles.forEach(function (fileName) {
-		var fullFileName = path.join(PROJECT_ROOT, fileName);
+		var fullFileName = getFullFileName(fileName);
 
 		if (fs.existsSync(fullFileName)) {
 			updateFile(fullFileName, releaseType);
@@ -59,6 +68,12 @@ module.exports = {
 
 	performRelease: function performRelease(releaseType) {
 		releasePackage(releaseType);
+
+		return SVNHelpers.commit('[release ' + releaseVersion + ']').then(function () {
+			return SVNHelpers.createTag(releaseVersion);
+		}).then(function () {
+			console.log('finish');
+		});
 	},
 
 	test: function test() {
