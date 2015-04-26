@@ -1,52 +1,30 @@
 const PROJECT_ROOT = process.cwd();
-const packageFiles = ['bower.json', 'package.json'];
-const [PATCH, MINOR, MAJOR] = ['patch', 'minor', 'major'];
-const versionPartIndexes = [MAJOR, MINOR, PATCH].reduce((prevValue, currentValue, index) => {
-	prevValue[currentValue] = index;
-	return prevValue;
-}, {});
+const BOWER_CFG = 'bower.json';
+const PACKAGE_CFG = 'package.json';
 
-let SVNHelpers = new (require('./svn/svn.js'))(PROJECT_ROOT);
+let SVNHelpers = new (require('./release/svn.js'))(PROJECT_ROOT);
+let PackageFile = require('./release/PackageFile.class.js');
 let fs = require('fs');
 let path = require('path');
-let releaseVersion;
+let propertiesParser = require('properties').parse;
+
+function getProjectPackageFiles() {
+	return [PACKAGE_CFG, BOWER_CFG].reduce((result, fileName) => {
+		let fullFileName = getFullFileName(fileName);
+
+		if (fs.existsSync(fullFileName)) {
+			result[fileName] = new PackageFile(fullFileName);
+		}
+		return result;
+	}, {})
+}
 
 function getFullFileName(fileName) {
 	return path.join(PROJECT_ROOT, fileName);
 }
 
-function bumpVersion(version, releaseType) {
-	let affectedIndex = versionPartIndexes[releaseType];
-
-	return version.split('.')
-		.map((value, index) => {
-			if (index === affectedIndex) {
-				value = parseInt(value) + 1;
-			}
-			if (index > affectedIndex) {
-				value = 0;
-			}
-
-			return value;
-		}).join('.');
-}
-function setReleaseVersion(version) {
-	releaseVersion = version;
-}
-
-function updateFile(fullFileName, releaseType) {
-	let fileData = JSON.parse(fs.readFileSync(fullFileName, 'utf8'));
-	let currentVersion = fileData.version;
-	let newVersion = bumpVersion(currentVersion, releaseType);
-
-	fileData.version = newVersion;
-	setReleaseVersion(newVersion);
-
-	fs.writeFileSync(fullFileName, JSON.stringify(fileData, null, 2));
-}
-
-function releasePackage(releaseType) {
-	packageFiles.forEach(fileName => {
+function releasePackageFiles(releaseType) {
+	PACKAGE_FILES.forEach(fileName => {
 		let fullFileName = getFullFileName(fileName);
 
 		if (fs.existsSync(fullFileName)) {
@@ -55,24 +33,66 @@ function releasePackage(releaseType) {
 	})
 }
 
+function isCiRun() {
+	return !!process.env.TEAMCITY_VERSION;
+}
+
+function getProperty(name) {
+	var file,
+		propsJSON,
+		result;
+
+	if (isCiRun()) {
+		file = fs.readFileSync(process.env.TEAMCITY_BUILD_PROPERTIES_FILE, 'utf-8');
+		propsJSON = propertiesParser(file);
+
+		result = propsJSON[name]
+	}
+
+	if (typeof result === 'undefined') {
+		console.log('[WARN]: Property ' + name + ' not defined');
+		console.log('[INFO]: Running ' + (isCiRun() ? '' : 'NOT ') + 'under TeamCity');
+	}
+
+	return result;
+}
+
+function processPackageFiles(packageFiles, releaseType) {
+	Object.keys(packageFiles).forEach((fileName) => {
+		let pkg = packageFiles[fileName];
+
+		pkg.bumpVersion(releaseType);
+		pkg.save();
+	});
+}
+
 module.exports = {
-	releaseTypes: {
-		PATCH,
-		MINOR,
-		MAJOR
-	},
 
 	performRelease(releaseType) {
-		releasePackage(releaseType);
+		let packageFiles = getProjectPackageFiles();
 
-		return SVNHelpers.commit(`[release ${releaseVersion}]`)
-			.then(() => {
-				return SVNHelpers.createTag(releaseVersion);
-			})
-			.then(() => {console.log('finish');});
+		processPackageFiles(packageFiles, releaseType);
+
+		//releasePackageFiles(releaseType);
+		//
+		//return SVNHelpers.commit(`[release ${releaseVersion}]`)
+		//	.then(() => {
+		//		return SVNHelpers.createTag(releaseVersion);
+		//	})
+		//	.then(() => {console.log('finish');});
 	},
-
-	test() {
-		releasePackage(MAJOR);
+	setTeamcityVersion() {
+	//	//let version = releaseVersion || JSON.parse(fs.readFileSync(getFullFileName('package.json'), 'utf8')).version;
+	//
+	//	let isRelease = !!getProperty('release.type');
+	//
+	//	let message = [
+	//			"##teamcity[buildNumber '",
+	//				version + (isRelease ? "" : "{build.number}"),
+	//			"']"
+	//		];
+	//
+	//	console.log(message.join(''));
 	}
+
 };

@@ -11,9 +11,9 @@ var program = require('commander'),
 		.parse(process.argv);
 
 
-console.log(program.type);
-//helpers.release.test();
 
 if (program.type) {
 	helpers.release.performRelease(program.type);
 }
+
+helpers.release.setTeamcityVersion();

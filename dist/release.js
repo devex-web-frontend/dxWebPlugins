@@ -1,56 +1,32 @@
 'use strict';
 
 var PROJECT_ROOT = process.cwd();
-var packageFiles = ['bower.json', 'package.json'];
-var PATCH = 'patch';
-var MINOR = 'minor';
-var MAJOR = 'major';
+var BOWER_CFG = 'bower.json';
+var PACKAGE_CFG = 'package.json';
 
-var versionPartIndexes = [MAJOR, MINOR, PATCH].reduce(function (prevValue, currentValue, index) {
-	prevValue[currentValue] = index;
-	return prevValue;
-}, {});
-
-var SVNHelpers = new (require('./svn/svn.js'))(PROJECT_ROOT);
+var SVNHelpers = new (require('./release/svn.js'))(PROJECT_ROOT);
+var PackageFile = require('./release/PackageFile.class.js');
 var fs = require('fs');
 var path = require('path');
-var releaseVersion = undefined;
+var propertiesParser = require('properties').parse;
+
+function getProjectPackageFiles() {
+	return [PACKAGE_CFG, BOWER_CFG].reduce(function (result, fileName) {
+		var fullFileName = getFullFileName(fileName);
+
+		if (fs.existsSync(fullFileName)) {
+			result[fileName] = new PackageFile(fullFileName);
+		}
+		return result;
+	}, {});
+}
 
 function getFullFileName(fileName) {
 	return path.join(PROJECT_ROOT, fileName);
 }
 
-function bumpVersion(version, releaseType) {
-	var affectedIndex = versionPartIndexes[releaseType];
-
-	return version.split('.').map(function (value, index) {
-		if (index === affectedIndex) {
-			value = parseInt(value) + 1;
-		}
-		if (index > affectedIndex) {
-			value = 0;
-		}
-
-		return value;
-	}).join('.');
-}
-function setReleaseVersion(version) {
-	releaseVersion = version;
-}
-
-function updateFile(fullFileName, releaseType) {
-	var fileData = JSON.parse(fs.readFileSync(fullFileName, 'utf8'));
-	var currentVersion = fileData.version;
-	var newVersion = bumpVersion(currentVersion, releaseType);
-
-	fileData.version = newVersion;
-	setReleaseVersion(newVersion);
-
-	fs.writeFileSync(fullFileName, JSON.stringify(fileData, null, 2));
-}
-
-function releasePackage(releaseType) {
-	packageFiles.forEach(function (fileName) {
+function releasePackageFiles(releaseType) {
+	PACKAGE_FILES.forEach(function (fileName) {
 		var fullFileName = getFullFileName(fileName);
 
 		if (fs.existsSync(fullFileName)) {
@@ -59,24 +35,64 @@ function releasePackage(releaseType) {
 	});
 }
 
+function isCiRun() {
+	return !!process.env.TEAMCITY_VERSION;
+}
+
+function getProperty(name) {
+	var file, propsJSON, result;
+
+	if (isCiRun()) {
+		file = fs.readFileSync(process.env.TEAMCITY_BUILD_PROPERTIES_FILE, 'utf-8');
+		propsJSON = propertiesParser(file);
+
+		result = propsJSON[name];
+	}
+
+	if (typeof result === 'undefined') {
+		console.log('[WARN]: Property ' + name + ' not defined');
+		console.log('[INFO]: Running ' + (isCiRun() ? '' : 'NOT ') + 'under TeamCity');
+	}
+
+	return result;
+}
+
+function processPackageFiles(packageFiles, releaseType) {
+	Object.keys(packageFiles).forEach(function (fileName) {
+		var pkg = packageFiles[fileName];
+
+		pkg.bumpVersion(releaseType);
+		pkg.save();
+	});
+}
+
 module.exports = {
-	releaseTypes: {
-		PATCH: PATCH,
-		MINOR: MINOR,
-		MAJOR: MAJOR
-	},
 
 	performRelease: function performRelease(releaseType) {
-		releasePackage(releaseType);
+		var packageFiles = getProjectPackageFiles();
 
-		return SVNHelpers.commit('[release ' + releaseVersion + ']').then(function () {
-			return SVNHelpers.createTag(releaseVersion);
-		}).then(function () {
-			console.log('finish');
-		});
+		processPackageFiles(packageFiles, releaseType);
+
+		//releasePackageFiles(releaseType);
+		//
+		//return SVNHelpers.commit(`[release ${releaseVersion}]`)
+		//	.then(() => {
+		//		return SVNHelpers.createTag(releaseVersion);
+		//	})
+		//	.then(() => {console.log('finish');});
 	},
+	setTeamcityVersion: function setTeamcityVersion() {}
 
-	test: function test() {
-		releasePackage(MAJOR);
-	}
 };
+
+//	//let version = releaseVersion || JSON.parse(fs.readFileSync(getFullFileName('package.json'), 'utf8')).version;
+//
+//	let isRelease = !!getProperty('release.type');
+//
+//	let message = [
+//			"##teamcity[buildNumber '",
+//				version + (isRelease ? "" : "{build.number}"),
+//			"']"
+//		];
+//
+//	console.log(message.join(''));
