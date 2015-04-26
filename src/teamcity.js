@@ -33,13 +33,10 @@ function getMainPackageFile() {
 
 function getProperty(name) {
 	let propertyValue;
-	console.log('getting ', name);
-	console.log('prop file ', process.env.TEAMCITY_BUILD_PROPERTIES_FILE)
 
 	if (isCIEnv()) {
 		let props = propertiesParser(fs.readFileSync(process.env.TEAMCITY_BUILD_PROPERTIES_FILE, 'utf8'));
 
-		console.log('all props ', props);
 		propertyValue = props[name];
 	}
 
@@ -47,6 +44,8 @@ function getProperty(name) {
 		console.log('[WARN]: Property ' + name + ' not defined');
 		console.log('[INFO]: Running ' + (isCIEnv() ? '' : 'NOT ') + 'under TeamCity');
 	}
+
+	return propertyValue;
 }
 
 function setSnapshotBuildNumber() {
