@@ -28,8 +28,8 @@ function tryToCreateGITRepo() {
 		exec('git status', { cwd: process.cwd() }, function (err) {
 			if (!err) {
 				GITRepo = new GITRepoClass(PROJECT_ROOT);
-				console.log(GITRepo);
 			}
+
 			resolve();
 		});
 	});
@@ -37,8 +37,6 @@ function tryToCreateGITRepo() {
 
 module.exports = {
 	init: function init() {
-		console.log('init');
-
 		return Promise.all([tryToCreateSVNRepo(), tryToCreateGITRepo()]);
 	},
 	isGIT: function isGIT() {
