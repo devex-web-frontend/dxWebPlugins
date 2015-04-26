@@ -6,17 +6,26 @@ var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 
 var buffer = require('../confluence/buffer.js');
+var pages = {
+    NumericStepper: 108139548,
+    Ololo: 108139608
 
+};
 function getDoc() {
     process.chdir('test/out/api');
     glob('*[!.]??.html', function (er, files) {
         delete files[files.indexOf('index.html')];
-        var file = files[0];
-        var filePath = path.join(process.cwd(), file);
-        var buf = fs.readFileSync(filePath).toString();
+        files.forEach(function (file) {
+            var name = file.slice(0, file.indexOf('.'));
+            var pageId = pages[name];
+            if (pageId) {
+                var filePath = path.join(process.cwd(), file);
+                var buf = fs.readFileSync(filePath).toString();
 
-        var result = prepareData(buf);
-        write(result);
+                var result = prepareData(buf);
+                write(pageId, result);
+            }
+        });
     });
 }
 
@@ -28,7 +37,7 @@ function prepareData(data) {
 
     data = sanitizeHtml(data, {
         transformTags: {
-            dd: 'div',
+            dd: sanitizeHtml.simpleTransform('div'),
             dt: sanitizeHtml.simpleTransform('h5'),
             dl: sanitizeHtml.simpleTransform('div')
         },
@@ -39,9 +48,10 @@ function prepareData(data) {
 
     return data;
 }
-function write(data) {
-    buffer.write(108139548, data).then(function (result) {
-        console.log('Succesffuly written');
+
+function write(pageId, data) {
+    buffer.write(pageId, data).then(function (result) {
+        console.log('Succesffuly written to ', pageId);
     }, handleError);
 };
 
