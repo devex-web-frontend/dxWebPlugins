@@ -1,8 +1,8 @@
 {
   "name": "fe-helper-pack",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
-  "main": "dist/test2.js",
+  "main": "index.js",
   "scripts": {
     "watch": "gulp"
   },
