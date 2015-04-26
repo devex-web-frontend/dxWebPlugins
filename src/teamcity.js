@@ -54,7 +54,7 @@ function setSnapshotBuildNumber() {
 	let pkg = getMainPackageFile();
 
 	pkg.bumpVersion('minor');
-	setBuildNumber(`${pkg.getVersion()}-snapshot-{build.number}`);
+	setBuildNumber(`${pkg.getVersion()}-snapshot{build.number}`);
 }
 
 function setReleaseBuildNumber() {

@@ -12,12 +12,13 @@ var program = require('commander'),
 		.parse(process.argv);
 
 
-var releaseType;
+var releaseType = program.type || helpers.teamcity.getProperty('release.type');
 
 
-if (program.release) {
-	releaseType = program.type || helpers.teamcity.getProperty('release.type');
+if (program.release || (releaseType && releaseType !== 'none')) {
 	helpers.release.performRelease(releaseType);
+} else {
+	console.log('ordinary build');
 }
 //helpers.release.setTeamcityVersion();
 
