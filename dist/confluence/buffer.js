@@ -66,20 +66,29 @@ function createRequest(path, method) {
     return promise;
 }
 
-function getPageContent(pageId, callback) {
+function getPageContent(pageId) {
     var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
-    createRequest(path).then(function (request) {
-        https.get(request, function (res) {
-            var respond = '';
-            res.on('data', function (chunk) {
-                respond += chunk;
-            });
-            res.on('end', function () {
-                var result = JSON.parse(respond);
-                callback(result);
+    var promise = new Promise(function (resolve, reject) {
+        createRequest(path).then(function (request) {
+            https.get(request, function (res) {
+                var respond = '';
+                if (res.statusCode === 401) {
+                    reject(res.statusCode);
+                    return;
+                }
+                res.on('data', function (chunk) {
+                    respond += chunk;
+                });
+                res.on('end', function () {
+                    var result = JSON.parse(respond);
+                    resolve(result);
+                });
+            }).on('error', function (err) {
+                reject(err);
             });
         });
     });
+    return promise;
 }
 
 function setPageContent(pageId, newContent) {
