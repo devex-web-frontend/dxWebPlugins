@@ -8,6 +8,7 @@ var PackageFile = require('./release/PackageFile.class.js');
 var fs = require('fs');
 var path = require('path');
 var vcs = require('./release/vcs.js');
+var teamcity = require('./teamcity.js');
 
 function getProjectPackageFiles() {
 	return [PACKAGE_CFG, BOWER_CFG].reduce(function (result, fileName) {
@@ -47,7 +48,8 @@ module.exports = {
 		}).then(function () {
 			return vcs.createTag(version);
 		}).then(function () {
-			return console.log('version ' + version + ' released');
+			teamcity.setReleaseBuildNumber();
+			console.log('version ' + version + ' released');
 		});
 	}
 };
