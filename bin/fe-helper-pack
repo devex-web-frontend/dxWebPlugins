@@ -15,7 +15,7 @@ var program = require('commander'),
 var releaseType = program.type || helpers.teamcity.getProperty('release.type');
 
 
-if (program.release || (releaseType && releaseType !== 'none')) {
+if (program.release && (releaseType && releaseType !== 'none')) {
 	helpers.release.performRelease(releaseType);
 } else {
 	console.log('ordinary build');
