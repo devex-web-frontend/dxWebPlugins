@@ -17,6 +17,7 @@
     "gulp-jsdoc-to-markdown": "^1.0.2",
     "markdown2confluence": "^1.1.7",
     "promise": "^7.0.1",
+    "prompt": "^0.2.14",
     "svn-spawn": "^0.1.4"
   },
   "bin": {
