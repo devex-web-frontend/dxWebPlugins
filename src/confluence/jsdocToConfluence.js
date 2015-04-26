@@ -1,6 +1,8 @@
 var glob = require("glob");
 var fs = require('fs');
 var path = require('path');
+var sanitizeHtml = require('sanitize-html');
+
 
 var buffer = require('../confluence/buffer.js');
 
@@ -16,18 +18,27 @@ function getDoc() {
         write(result)
     })
 }
+
 function prepareData(data) {
     var startIndex = data.indexOf('<body>') ? data.indexOf('<body>') + 7 : 0,
         endIndex = data.indexOf('<nav>') ? data.indexOf('<nav>') : null;
 
     data = data.slice(startIndex, endIndex);
 
-    data = data.replace(new RegExp('<(/*)d[tld](>*)', 'g'), '<$1div$2');
+    data = sanitizeHtml(data, {
+        transformTags: {
+            'dd': 'div',
+            'dt': sanitizeHtml.simpleTransform('h5'),
+            'dl': sanitizeHtml.simpleTransform('div')
+        },
+        exclusiveFilter: function(frame) {
+            return frame.attribs.class === "tag-source"
+        }
+    });
 
-    return data
+    return data;
 }
-function write(data){
-    data = '4444'
+function write(data) {
     buffer.write(108139548, data).then(function(result) {
         console.log('Succesffuly written');
     }, handleError)

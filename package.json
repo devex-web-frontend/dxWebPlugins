@@ -19,6 +19,7 @@
     "promise": "^7.0.1",
     "prompt": "^0.2.14",
     "properties": "^1.2.1",
+    "sanitize-html": "^1.6.1",
     "svn-spawn": "^0.1.4"
   },
   "bin": {
