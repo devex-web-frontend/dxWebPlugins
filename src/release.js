@@ -76,18 +76,10 @@ module.exports = {
 		processPackageFiles(packageFiles, releaseType);
 
 		return vcs.init()
-			.then(() => vcs.push(Object.keys(packageFiles), 'release'))
+			.then(() => vcs.push(Object.keys(packageFiles), `[release ${pkg.getVersion()}]`))
 			.then(() => vcs.createTag(pkg.getVersion()))
 			.then(function() {console.log(arguments)})
 			.catch(function() {console.log('fail', arguments)});
-
-		//releasePackageFiles(releaseType);
-		//
-		//return SVNHelpers.commit(`[release ${releaseVersion}]`)
-		//	.then(() => {
-		//		return SVNHelpers.createTag(releaseVersion);
-		//	})
-		//	.then(() => {console.log('finish');});
 	},
 	setTeamcityVersion() {
 	//	//let version = releaseVersion || JSON.parse(fs.readFileSync(getFullFileName('package.json'), 'utf8')).version;

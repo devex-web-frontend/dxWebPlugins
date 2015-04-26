@@ -68,7 +68,8 @@ module.exports = {
 		let result;
 
 		if (GITRepo) {
-
+			result = GITRepo.createTag(tagName)
+				.then(() => GITRepo.push(`origin ${tagName}`));
 		}
 
 		if (SVNRepo) {

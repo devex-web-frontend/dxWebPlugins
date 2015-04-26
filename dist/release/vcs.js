@@ -69,7 +69,11 @@ module.exports = {
 	createTag: function createTag(tagName) {
 		var result = undefined;
 
-		if (GITRepo) {}
+		if (GITRepo) {
+			result = GITRepo.createTag(tagName).then(function () {
+				return GITRepo.push('origin ' + tagName);
+			});
+		}
 
 		if (SVNRepo) {
 			result = SVNRepo.createTag(tagName);

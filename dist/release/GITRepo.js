@@ -49,11 +49,11 @@ var GITRepo = (function () {
 		}
 	}, {
 		key: 'push',
-		value: function push() {
+		value: function push(dest) {
 			var _this4 = this;
 
 			return new Promise(function (resolve, reject) {
-				return _this4.GITSpawn.push('master', function (err, data) {
+				return _this4.GITSpawn.remote_push(dest, function (err, data) {
 					err ? reject(err) : resolve(data);
 				});
 			});

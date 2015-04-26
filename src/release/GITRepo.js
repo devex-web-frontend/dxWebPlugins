@@ -30,9 +30,9 @@ class GITRepo {
 		})
 	}
 
-	push() {
+	push(dest) {
 		return new Promise((resolve, reject) => {
-			return this.GITSpawn.push('master', function(err, data) {
+			return this.GITSpawn.remote_push(dest, function(err, data) {
 				err ? reject(err) : resolve(data);
 			})
 		})

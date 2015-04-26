@@ -76,7 +76,7 @@ module.exports = {
 		processPackageFiles(packageFiles, releaseType);
 
 		return vcs.init().then(function () {
-			return vcs.push(Object.keys(packageFiles), 'release');
+			return vcs.push(Object.keys(packageFiles), '[release ' + pkg.getVersion() + ']');
 		}).then(function () {
 			return vcs.createTag(pkg.getVersion());
 		}).then(function () {
@@ -84,14 +84,6 @@ module.exports = {
 		})['catch'](function () {
 			console.log('fail', arguments);
 		});
-
-		//releasePackageFiles(releaseType);
-		//
-		//return SVNHelpers.commit(`[release ${releaseVersion}]`)
-		//	.then(() => {
-		//		return SVNHelpers.createTag(releaseVersion);
-		//	})
-		//	.then(() => {console.log('finish');});
 	},
 	setTeamcityVersion: function setTeamcityVersion() {}
 
