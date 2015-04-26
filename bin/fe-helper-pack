@@ -8,14 +8,17 @@ var program = require('commander'),
 
 	program.version(pkg.version)
 		.option('--type [type]', 'release type')
+		.option('--release', 'release new pkg version')
 		.parse(process.argv);
 
 
+var releaseType;
 
-if (program.type) {
-	helpers.release.performRelease(program.type);
+
+if (program.release) {
+	releaseType = program.type || helpers.teamcity.getProperty('release.type');
+	helpers.release.performRelease(releaseType);
 }
-
 //helpers.release.setTeamcityVersion();
 
 //var GITRepo = require('../dist/release/GITRepo.js');
