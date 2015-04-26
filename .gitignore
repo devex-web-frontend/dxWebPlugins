@@ -3,4 +3,4 @@ npm-debug.log
 .DS_Store
 .idea/
 conf.json
-test/out/*
+test/out

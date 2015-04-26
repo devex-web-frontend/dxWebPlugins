@@ -1,28 +1,26 @@
-var https = require('https');
-var conf =  require('../../conf.json');
-var prompt = require('prompt');
+'use strict';
 
+var https = require('https');
+var conf = require('../../../conf.json');
+var prompt = require('prompt');
 var Promise = require('promise');
 
 module.exports = {
     write: setPageContent,
-    read : getPageContent
+    read: getPageContent
 };
 
 function getAuthInfo() {
-    var properties = [
-        {
-            name: 'username',
-            warning: 'Username must be only letters, spaces, or dashes'
-        },
-        {
-            name: 'password',
-            hidden: true
-        }
-    ];
+    var properties = [{
+        name: 'username',
+        warning: 'Username must be only letters, spaces, or dashes'
+    }, {
+        name: 'password',
+        hidden: true
+    }];
     prompt.start();
 
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise(function (resolve, reject) {
         if (!conf || !conf.pass || !conf.user) {
             prompt.get(properties, function (err, res) {
                 if (err) {
@@ -41,21 +39,21 @@ function getAuthInfo() {
 
     return promise;
 }
-function createRequest(path ,method) {
-    var promise = new Promise(function(resolve, reject) {
-        getAuthInfo().then(function(data) {
+function createRequest(path, method) {
+    var promise = new Promise(function (resolve, reject) {
+        getAuthInfo().then(function (data) {
 
             var conf = data;
 
             var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
-            resolve( {
+            resolve({
                 host: 'confluence.in.devexperts.com',
                 port: 443,
-                contentType: "application/json; charset=utf-8",
-                'path': path,
-                method: method || "GET",
+                contentType: 'application/json; charset=utf-8',
+                path: path,
+                method: method || 'GET',
                 headers: {
-                    'Authorization': 'Basic ' + auth,
+                    Authorization: 'Basic ' + auth,
                     'Content-Type': 'application/json'
                 },
                 rejectUnauthorized: false,
@@ -67,22 +65,22 @@ function createRequest(path ,method) {
     return promise;
 }
 
-function get(request, resolve, reject){
+function get(request, resolve, reject) {
 
-    https.get(request, function(res) {
+    https.get(request, function (res) {
         var respond = '';
         if (res.statusCode === 401) {
             reject(res.statusCode);
             return;
         }
-        res.on('data', function(chunk) {
+        res.on('data', function (chunk) {
             respond += chunk;
         });
-        res.on('end', function() {
+        res.on('end', function () {
             var result = JSON.parse(respond);
             resolve(result);
         });
-    }).on('error', function(err) {
+    }).on('error', function (err) {
         reject(err);
     });
 }
@@ -97,45 +95,43 @@ function set(request, data, resolve, reject) {
         res.on('end', function () {
             var result = JSON.parse(respond);
             if (!!result.statusCode) {
-                reject(result.statusCode + ': ' +result.message);
+                reject(result.statusCode + ': ' + result.message);
                 return;
             }
             resolve(result);
         });
     });
-    R.on('error', function(err) {
-        reject(err)
+    R.on('error', function (err) {
+        reject(err);
     });
     R.write(data);
     R.end();
-
 }
 
 function getPageContent(pageId) {
     var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
-    return new Promise(function(resolve, reject) {
-        createRequest(path).then(function(request) {
-           get(request, resolve, reject);
+    return new Promise(function (resolve, reject) {
+        createRequest(path).then(function (request) {
+            get(request, resolve, reject);
         });
-
     });
 }
 
 function setPageContent(pageId, newContent) {
     var path = '/rest/api/content/' + pageId,
         data = {
-            "id": pageId,
-            "body": {
-                "storage": {
-                    "value": newContent || "<p>This is a new page</p>",
-                    "representation": "storage"
-                }
+        id: pageId,
+        body: {
+            storage: {
+                value: newContent || '<p>This is a new page</p>',
+                representation: 'storage'
             }
-        };
+        }
+    };
 
-    return new Promise(function(resolve, reject){
-        getPageContent(pageId).then(function(respond) {
-            data.version = {number: respond.version.number + 1};
+    return new Promise(function (resolve, reject) {
+        getPageContent(pageId).then(function (respond) {
+            data.version = { number: respond.version.number + 1 };
             data.type = respond.type;
             data.title = respond.title;
             data = JSON.stringify(data);
@@ -144,10 +140,6 @@ function setPageContent(pageId, newContent) {
                 request.headers['Content-Length'] = data.length;
                 set(request, data, resolve, reject);
             }, reject);
-
         }, reject);
     });
-
 }
-
-

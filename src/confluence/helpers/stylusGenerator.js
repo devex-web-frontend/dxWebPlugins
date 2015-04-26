@@ -3,16 +3,31 @@ var path = require('path');
 var cheerio = require('cheerio');
 
 module.exports = {
-    write : create
+    write : generateStylusFile
 };
 
-function write(text) {
-    var filePath = "/test/out/styl/test.styl";
-    fs.writeFile(path.join(process.cwd(), filePath), text, function (err) {
+
+function writeToFile(text) {
+    var fileName = "/test.styl";
+    var folderPath = path.join(process.cwd(), "/test/out");
+    var relativePath = folderPath + fileName;
+
+    if (!fs.existsSync(folderPath)){
+        fs.mkdirSync(folderPath);
+        folderPath += '/styl';
+        fs.mkdirSync(folderPath);
+    }
+
+    fs.existsSync(relativePath, function (exists) {
+        if(!exists) {
+            fs.writeFile(relativePath, {flag: 'wx'});
+        }
+    });
+    fs.writeFile(relativePath, text, function (err) {
         if (err) {
             return console.log(err);
         }
-        console.log("The file "+ filePath +" was saved!");
+        console.log("The file "+ relativePath +" was saved!");
     });
 }
 
@@ -36,7 +51,7 @@ function parseTable(string) {
     return map;
 }
 
-function createStyl(string, name) {
+function createHashObject(string, name) {
    var map =  parseTable(string);
    var result = '';
    result = name ? ('$' + name + ' = { \n') : '';
@@ -51,14 +66,14 @@ function createStyl(string, name) {
     return result;
 }
 
-function create(dataMap) {
+function generateStylusFile(dataMap) {
     var result = '';
 
     Object
         .keys(dataMap)
         .forEach(function(key) {
 
-            result += createStyl(dataMap[key], key);
+            result += createHashObject(dataMap[key], key);
         });
-    write(result);
+    writeToFile(result);
 }

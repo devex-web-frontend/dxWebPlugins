@@ -1,5 +1,5 @@
-var buffer = require('../confluence/buffer.js');
-var styl = require('../confluence/stylusGenerator.js');
+var buffer = require('./helpers/buffer.js');
+var styl = require('./helpers/stylusGenerator.js');
 
 var pageIds = [
     {

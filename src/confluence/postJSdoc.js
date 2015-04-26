@@ -4,7 +4,7 @@ var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 
 
-var buffer = require('../confluence/buffer.js');
+var buffer = require('./helpers/buffer.js');
 var pages = {
     NumericStepper: 108139548,
     Ololo: 108139608
