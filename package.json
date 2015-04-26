@@ -12,6 +12,9 @@
     "babel": "^5.1.11",
     "cheerio": "^0.19.0",
     "commander": "^2.8.1",
+    "gulp-jsdoc": "0.1.4",
+    "gulp-jsdoc-to-markdown": "^1.0.2",
+    "markdown2confluence": "^1.1.7",
     "promise": "^7.0.1",
     "svn-spawn": "^0.1.4"
   },
@@ -21,9 +24,9 @@
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-babel": "^5.1.0",
+    "gulp-crash-sound": "0.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
-    "gulp-watch": "^4.2.4",
-    "gulp-crash-sound": "0.0.1"
+    "gulp-watch": "^4.2.4"
   }
 }

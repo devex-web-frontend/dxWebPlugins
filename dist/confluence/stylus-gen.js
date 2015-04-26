@@ -21,7 +21,7 @@ function write(text) {
 function parseTable(string) {
     var $ = cheerio.load(string);
     var map = {};
-    var res = $('tr').each(function (t, elem) {
+    $('tr').each(function (t, elem) {
         var index = $('td:first-child', elem).html();
         var names = '' + $('td:last-child span ', elem).text();
         var color = '' + $('td:first-child + td + td', elem).attr('style');
@@ -37,14 +37,14 @@ function parseTable(string) {
     return map;
 }
 
-function createStyl(string) {
+function createStyl(string, name) {
     var map = parseTable(string);
     var result = '';
+    result = name ? '$' + name + ' = { \n' : '';
     Object.keys(map).forEach(function (key) {
-        result += '$' + key + ' = ' + map[key] + ';';
+        result += '    ' + key + ' : ' + map[key] + ',';
         result += '\n';
     });
+    result += name ? '};\n' : '';
     write(result);
 }
-
-createStyl('<div' + '>fffff<' + '/div>' + '<div' + '>aaa<' + '/div>');
