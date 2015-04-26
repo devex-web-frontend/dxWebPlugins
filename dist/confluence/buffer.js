@@ -1,7 +1,7 @@
 'use strict';
 
 var https = require('https');
-var conf = require('../../conf.json') || {};
+var conf = null; //|| require('../../conf1.json');
 var prompt = require('prompt');
 
 var Promise = require('promise');
@@ -12,14 +12,22 @@ module.exports = {
 };
 
 function getAuthInfo() {
+    var properties = [{
+        name: 'username',
+        warning: 'Username must be only letters, spaces, or dashes'
+    }, {
+        name: 'password',
+        hidden: true
+    }];
     prompt.start();
 
     var promise = new Promise(function (resolve, reject) {
-        if (!conf) {
-            prompt.get(['username', 'password'], function (err, res) {
+        if (!conf || !conf.pass || !conf.user) {
+            prompt.get(properties, function (err, res) {
                 if (err) {
                     reject(err);
                 } else {
+                    conf = {};
                     conf.user = res.username;
                     conf.pass = res.password;
                     resolve(conf);
@@ -29,6 +37,7 @@ function getAuthInfo() {
             resolve(conf);
         }
     });
+
     return promise;
 }
 function createRequest(path, method) {
