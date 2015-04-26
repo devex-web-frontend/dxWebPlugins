@@ -1,7 +1,7 @@
 let SVN  = require('svn-spawn');
 let Promise = require('promise');
 
-class SVNHelper {
+class SVNRepo {
 	constructor(cwd) {
 		this.SVNSpawn = new SVN(cwd);
 	}
@@ -46,4 +46,4 @@ class SVNHelper {
 	}
 }
 
-module.exports = SVNHelper;
+module.exports = SVNRepo;

@@ -21,6 +21,10 @@ module.exports = class PackageFile {
 		this.fullFileName = fullFileName;
 	}
 
+	getVersion() {
+		return this.packageData.version;
+	}
+
 	bumpVersion(releaseType) {
 		let affectedIndex = versionPartIndexes[releaseType];
 

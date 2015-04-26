@@ -12,6 +12,7 @@
     "babel": "^5.1.11",
     "cheerio": "^0.19.0",
     "commander": "^2.8.1",
+    "gift": "^0.6.0",
     "glob": "^5.0.5",
     "gulp-jsdoc": "0.1.4",
     "gulp-jsdoc-to-markdown": "^1.0.2",

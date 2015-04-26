@@ -16,4 +16,10 @@ if (program.type) {
 	helpers.release.performRelease(program.type);
 }
 
-helpers.release.setTeamcityVersion();
+//helpers.release.setTeamcityVersion();
+
+//var GITRepo = require('../dist/release/GITRepo.js');
+//
+//var repo = new GITRepo(process.cwd());
+//
+//repo.getStatus().then(function() {console.log(arguments)}).catch(function() {console.log(arguments)});

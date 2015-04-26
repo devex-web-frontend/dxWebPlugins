@@ -34,6 +34,11 @@ module.exports = (function () {
 	}
 
 	_createClass(PackageFile, [{
+		key: 'getVersion',
+		value: function getVersion() {
+			return this.packageData.version;
+		}
+	}, {
 		key: 'bumpVersion',
 		value: function bumpVersion(releaseType) {
 			var affectedIndex = versionPartIndexes[releaseType];

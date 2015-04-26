@@ -2,11 +2,12 @@ const PROJECT_ROOT = process.cwd();
 const BOWER_CFG = 'bower.json';
 const PACKAGE_CFG = 'package.json';
 
-let SVNHelpers = new (require('./release/svn.js'))(PROJECT_ROOT);
+let SVNHelpers = new (require('./release/SVNRepo.js'))(PROJECT_ROOT);
 let PackageFile = require('./release/PackageFile.class.js');
 let fs = require('fs');
 let path = require('path');
 let propertiesParser = require('properties').parse;
+let vcs = require('./release/vcs.js');
 
 function getProjectPackageFiles() {
 	return [PACKAGE_CFG, BOWER_CFG].reduce((result, fileName) => {
@@ -70,8 +71,15 @@ module.exports = {
 
 	performRelease(releaseType) {
 		let packageFiles = getProjectPackageFiles();
+		let pkg = packageFiles[BOWER_CFG] || packageFiles[PACKAGE_CFG];
 
 		processPackageFiles(packageFiles, releaseType);
+
+		return vcs.init()
+			.then(() => vcs.push(Object.keys(packageFiles), 'release'))
+			.then(() => vcs.createTag(pkg.getVersion()))
+			.then(function() {console.log(arguments)})
+			.catch(function() {console.log('fail', arguments)});
 
 		//releasePackageFiles(releaseType);
 		//
