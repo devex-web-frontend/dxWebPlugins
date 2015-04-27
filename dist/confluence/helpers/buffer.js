@@ -1,10 +1,16 @@
 'use strict';
 
 var https = require('https');
-var conf = require('../../../conf.json');
+var conf = null;
 var prompt = require('prompt');
 var Promise = require('promise');
+var fs = require('fs');
+var path = require('path');
 
+var confPath = path.join(process.cwd(), '/conf1.json');
+if (fs.existsSync(confPath)) {
+    conf = require('../../../conf.json');
+}
 module.exports = {
     write: setPageContent,
     read: getPageContent
