@@ -8,23 +8,24 @@ module.exports = {
     write: generateStylusFile
 };
 
-function writeToFile(text) {
-    var fileName = '/test.styl';
-    var folderPath = path.join(process.cwd(), '/test/out');
-    var relativePath = folderPath + fileName;
+function createFolders(relativePath) {
+    var folders = relativePath.split('/').slice(1),
+        fileName = folders.pop(),
+        folderPath = process.cwd();
 
-    if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath);
-        folderPath += '/styl';
-        fs.mkdirSync(folderPath);
-    }
-
-    fs.existsSync(relativePath, function (exists) {
-        if (!exists) {
-            fs.writeFile(relativePath, { flag: 'wx' });
+    folders.forEach(function (folderName) {
+        folderPath = path.join(folderPath, folderName);
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath);
         }
     });
-    fs.writeFile(relativePath, text, function (err) {
+    return path.join(folderPath, fileName);
+}
+function writeToFile(text, relativePath) {
+
+    var absolutePath = createFolders(relativePath);
+
+    fs.writeFile(absolutePath, text, function (err) {
         if (err) {
             return console.log(err);
         }
@@ -64,12 +65,14 @@ function createHashObject(string, name) {
     return result;
 }
 
-function generateStylusFile(dataMap) {
+function generateStylusFile(dataArray) {
     var result = '';
 
-    Object.keys(dataMap).forEach(function (key) {
-
-        result += createHashObject(dataMap[key], key);
+    dataArray.forEach(function (page) {
+        result += createHashObject(page.data, page.name);
     });
-    writeToFile(result);
+
+    writeToFile(result, '/test/out/styl/test.styl');
 }
+
+//createFolders('/test/out/styl/test.styl');

@@ -5,7 +5,7 @@ var Promise = require('promise');
 var fs = require('fs');
 var path = require('path');
 
-var confPath = path.join(process.cwd(), '/conf1.json');
+var confPath = path.join(process.cwd(), '/conf.json');
 if (fs.existsSync(confPath)) {
     conf =  require('../../../conf.json');
 }
