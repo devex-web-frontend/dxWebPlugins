@@ -1,73 +1,86 @@
 var https = require('https');
-var conf =  null;
 var prompt = require('prompt');
 var Promise = require('promise');
 var fs = require('fs');
 var path = require('path');
 
-var confPath = path.join(process.cwd(), '/conf.json');
-if (fs.existsSync(confPath)) {
-    conf =  require('../../../conf.json');
-}
+var absoluteCredinalsPath = path.join(process.cwd(), '/credinals.json');
+var relativeCredinalsPath = path.relative(__dirname, absoluteCredinalsPath);
+
+var credinals = fs.existsSync(absoluteCredinalsPath) ?  require(relativeCredinalsPath) : null;
+
+
 module.exports = {
     write: setPageContent,
     read : getPageContent
 };
 
+function createCredinalsFile(data) {
+    fs.writeFile(absoluteCredinalsPath, data, function () {
+        console.log("The file " + absoluteCredinalsPath.toString() + " was saved!");
+    });
+}
+
 function getAuthInfo() {
-    var properties = [
-        {
-            name: 'username',
-            warning: 'Username must be only letters, spaces, or dashes'
-        },
-        {
-            name: 'password',
+    var promise,
+        properties = [{
+            description: 'username',
+            name: 'user'
+        },{
+            description: 'password',
+            name: 'pass',
             hidden: true
-        }
-    ];
+        },{
+            description: 'Save to crendinals.json? Y/N',
+            name: 'needToSave',
+            conform: function(res) {
+                return res === 'Y' || res === 'N';
+            }
+        }];
+
     prompt.start();
 
-    var promise = new Promise(function(resolve, reject) {
-        if (!conf || !conf.pass || !conf.user) {
+    promise = new Promise(function(resolve, reject) {
+        if (!credinals || !credinals.pass || !credinals.user) {
             prompt.get(properties, function (err, res) {
                 if (err) {
                     reject(err);
                 } else {
-                    conf = {};
-                    conf.user = res.username;
-                    conf.pass = res.password;
-                    resolve(conf);
+                    credinals = {user: res.user, pass: res.pass};
+                    if (res.needToSave === 'Y') {
+                        createCredinalsFile(JSON.stringify(credinals));
+                    }
+                    resolve(credinals);
                 }
             });
         } else {
-            resolve(conf);
+            resolve(credinals);
         }
     });
 
     return promise;
 }
-function createRequest(path ,method) {
-    var promise = new Promise(function(resolve, reject) {
-        getAuthInfo().then(function(data) {
-
-            var conf = data;
-
-            var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
-            resolve( {
-                host: 'confluence.in.devexperts.com',
-                port: 443,
-                contentType: "application/json; charset=utf-8",
-                'path': path,
-                method: method || "GET",
-                headers: {
-                    'Authorization': 'Basic ' + auth,
-                    'Content-Type': 'application/json'
-                },
-                rejectUnauthorized: false,
-                requestCert: true,
-                agent: false
+function createRequest(path, method) {
+    var promise = new Promise(function(resolve) {
+        return getAuthInfo()
+            .then(function(conf) {
+                var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
+                resolve({
+                    host: 'confluence.in.devexperts.com',
+                    port: 443,
+                    contentType: "application/json; charset=utf-8",
+                    path: path,
+                    method: method || "GET",
+                    headers: {
+                        'Authorization': 'Basic ' + auth,
+                        'Content-Type': 'application/json'
+                    },
+                    rejectUnauthorized: false,
+                    requestCert: true,
+                    agent: false
+                });
             });
-        });
+
     });
     return promise;
 }
