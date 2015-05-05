@@ -19,12 +19,13 @@ function createFolders(relativePath) {
             fs.mkdirSync(folderPath);
         }
     });
+
     return path.join(folderPath, fileName);
 }
+
 function writeToFile(text, relativePath) {
 
     var absolutePath = createFolders(relativePath);
-
     fs.writeFile(absolutePath, text, function (err) {
         if (err) {
             return console.log(err);
@@ -34,45 +35,65 @@ function writeToFile(text, relativePath) {
 }
 
 function parseTable(string) {
-    var $ = cheerio.load(string);
-    var map = {};
+    var $ = cheerio.load(string),
+        map = {};
+
     $('tr').each(function (t, elem) {
-        var index = $('td:first-child', elem).html();
-        var names = '' + $('td:last-child span ', elem).text();
-        var color = '' + $('td:first-child + td + td', elem).attr('style');
+        var colorIndex = $('td:first-child', elem).html(),
+            names = '' + $('td:last-child span ', elem).text(),
+            color = '' + $('td:first-child + td + td', elem).attr('style');
+
         names = names.split(',');
-        color = color.slice(18, color.length - 1);
+        color = color.slice('background-color: '.length, color.length - 1);
+
         names.forEach(function (name) {
-            name = name.toLowerCase().trim();
             if (name) {
+                name = name.toLowerCase().trim();
                 map[name] = color;
             }
         });
     });
+
     return map;
 }
 
-function createHashObject(string, name) {
-    var map = parseTable(string);
+function wrapHash(hashName, hash) {
     var result = '';
-    result = name ? '$' + name + ' = { \n' : '';
-    Object.keys(map).forEach(function (key) {
-
-        result += '    ' + key + ' : ' + map[key];
-        result += '\n';
-    });
-    result += name ? '};\n' : '';
+    if (hashName) {
+        hash = hash.slice(0, hash.length - 2) + '\n';
+        result += '$' + hashName + ' = { \n';
+        result += hash;
+        result += '};\n';
+    } else {
+        result = hash;
+    }
     return result;
+}
+
+function composeLine(varName, varValue, isInHash) {
+    if (isInHash) {
+        return '\t' + varName + ' : ' + varValue + ',\n';
+    }
+    return '$' + varName + ' = ' + varValue + ';\n';
+}
+
+function createPageVariables(string, name) {
+    var map = parseTable(string),
+        result = '';
+
+    Object.keys(map).forEach(function (key) {
+        result += composeLine(key, map[key], !!name);
+    });
+
+    return wrapHash(name, result);
 }
 
 function generateStylusFile(dataArray) {
     var result = '';
 
     dataArray.forEach(function (page) {
-        result += createHashObject(page.data, page.name);
+        result += createPageVariables(page.data, page.name);
     });
 
     writeToFile(result, '/test/out/styl/test.styl');
 }
-
-//createFolders('/test/out/styl/test.styl');
