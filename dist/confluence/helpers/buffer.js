@@ -84,23 +84,24 @@ function createRequest(path, method) {
     return promise;
 }
 
-function get(request, resolve, reject) {
+function get(request) {
 
-    https.get(request, function (res) {
-        var respond = '';
-        if (res.statusCode === 401) {
-            reject(res.statusCode);
-            return;
-        }
-        res.on('data', function (chunk) {
-            respond += chunk;
+    return new Promise(function (resolve, reject) {
+        https.get(request, function (res) {
+            var respond = '';
+            if (res.statusCode === 401 || res.statusCode === 404) {
+                reject(res.statusCode);
+            }
+            res.on('data', function (chunk) {
+                respond += chunk;
+            });
+            res.on('end', function () {
+                var result = JSON.parse(respond);
+                resolve(result);
+            });
+        }).on('error', function (err) {
+            reject(err);
         });
-        res.on('end', function () {
-            var result = JSON.parse(respond);
-            resolve(result);
-        });
-    }).on('error', function (err) {
-        reject(err);
     });
 }
 
@@ -129,11 +130,7 @@ function set(request, data, resolve, reject) {
 
 function getPageContent(pageId) {
     var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
-    return new Promise(function (resolve, reject) {
-        createRequest(path).then(function (request) {
-            get(request, resolve, reject);
-        });
-    });
+    return createRequest(path).then(get);
 }
 
 function setPageContent(pageId, newContent) {
@@ -158,7 +155,7 @@ function setPageContent(pageId, newContent) {
             createRequest(path, 'PUT').then(function (request) {
                 request.headers['Content-Length'] = data.length;
                 set(request, data, resolve, reject);
-            }, reject);
-        }, reject);
+            });
+        })['catch'](reject);
     });
 }

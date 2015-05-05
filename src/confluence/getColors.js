@@ -6,9 +6,8 @@ var pages = [{
         id: 103777451
     },{
         name: 'chartScheme',
-        id: 104825455
-    }
-    ],
+        id: 1048254552
+    }],
     result = [];
 
 function errorHandler(err) {
@@ -16,22 +15,30 @@ function errorHandler(err) {
 }
 
 function readPage(pageIndex) {
-    var pageId = pages[pageIndex].id,
-        pageName = pages[pageIndex].name,
-        nextPage = pages[pageIndex + 1];
+    var page = pages[pageIndex],
+        pageId,
+        pageName;
 
-   buffer.read(pageId).then(function(respond) {
-      console.log('Succsessfully read ', pageId);
-      result.push({
-          name: pageName,
-          data: respond.body.view.value
-      });
-      if (nextPage) {
-          readPage(pageIndex + 1)
-      } else {
-          styl.write(result);
-      }
-  }, errorHandler)
+    if (!page) {
+        styl.write(result);
+    } else {
+        pageId = page.id;
+        pageName = page.name;
+
+        buffer.read(pageId)
+            .then(function (respond) {
+                console.log('Succsessfully read ', pageId);
+                result.push({
+                    name: pageName,
+                    data: respond.body.view.value
+                });
+                readPage(pageIndex + 1);
+            })
+            .catch(function (err) {
+                errorHandler(err);
+                readPage(pageIndex + 1);
+            });
+    }
 }
 
 function readAllPages() {
