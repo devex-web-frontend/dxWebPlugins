@@ -6,9 +6,7 @@ var sanitizeHtml = require('sanitize-html');
 
 var buffer = require('./helpers/buffer.js');
 var pages = {
-    NumericStepper: 108139548,
-    Ololo: 108139608
-
+    NumericStepper: 108139548
 };
 
 function publishAll() {
@@ -52,13 +50,16 @@ function prepareData(data) {
 }
 
 function writeToConfluence(pageId, data) {
-    buffer.write(pageId, data).then(function(result) {
-        console.log('Succesffuly written to ', pageId);
-    }, handleError)
+    buffer.write(pageId, data)
+        .then(function(result) {
+            console.log(result)
+            console.log('Succesffuly written to ', pageId);
+        })
+        .catch(handleError);
 }
 
 function handleError(err) {
-    console.log('Error ', err)
+    console.log('Error writing ', err)
 }
 
 publishAll();

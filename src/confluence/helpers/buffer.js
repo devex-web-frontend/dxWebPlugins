@@ -61,8 +61,8 @@ function getAuthInfo() {
     return promise;
 }
 function createRequest(path, method) {
-    var promise = new Promise(function(resolve) {
-        return getAuthInfo()
+    var promise = new Promise(function(resolve, reject) {
+        getAuthInfo()
             .then(function(conf) {
                 var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
                 resolve({
@@ -108,27 +108,29 @@ function get(request){
     });
 }
 
-function set(request, data, resolve, reject) {
-    var R = https.request(request, function (res) {
-        var respond = '';
+function set(request, data) {
+    return new Promise(function(resolve, reject) {
+        var R = https.request(request, function (res) {
+            var respond = '';
 
-        res.on('data', function (chunk) {
-            respond += chunk;
+            res.on('data', function (chunk) {
+                respond += chunk;
+            });
+            res.on('end', function () {
+                var result = JSON.parse(respond);
+                if (!!result.statusCode) {
+                    reject(result.statusCode + ': ' +result.message);
+                }
+                resolve(result);
+
+            });
         });
-        res.on('end', function () {
-            var result = JSON.parse(respond);
-            if (!!result.statusCode) {
-                reject(result.statusCode + ': ' +result.message);
-                return;
-            }
-            resolve(result);
+        R.on('error', function(err) {
+            reject(err)
         });
+        R.write(data);
+        R.end();
     });
-    R.on('error', function(err) {
-        reject(err)
-    });
-    R.write(data);
-    R.end();
 
 }
 
@@ -136,37 +138,35 @@ function getPageContent(pageId) {
     var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
     return createRequest(path).then(get);
 }
-
+function composeData(pageId, newContent, respond) {
+    var data = {
+        "id": pageId,
+        "body": {
+            "storage": {
+                "value": newContent || "<p>This is a new page</p>",
+                "representation": "storage"
+            }
+        }
+    };
+    data.version = {number: respond.version.number + 1};
+    data.type = respond.type;
+    data.title = respond.title;
+    data = JSON.stringify(data);
+    return data;
+}
 function setPageContent(pageId, newContent) {
     var path = '/rest/api/content/' + pageId,
-        data = {
-            "id": pageId,
-            "body": {
-                "storage": {
-                    "value": newContent || "<p>This is a new page</p>",
-                    "representation": "storage"
-                }
-            }
-        };
+       data;
 
-    return new Promise(function(resolve, reject) {
-        getPageContent(pageId)
-            .then(function(respond) {
-                data.version = {number: respond.version.number + 1};
-                data.type = respond.type;
-                data.title = respond.title;
-                data = JSON.stringify(data);
-
-                createRequest(path, 'PUT')
-                    .then(function(request) {
-                        request.headers['Content-Length'] = data.length;
-                        set(request, data, resolve, reject);
-                    });
-
+    return getPageContent(pageId)
+            .then(function (respond) {
+                data = composeData(pageId, newContent, respond);
+                return createRequest(path, 'PUT');
             })
-            .catch(reject);
-    });
-
+            .then(function (request) {
+                request.headers['Content-Length'] = data.length;
+                return set(request, data)
+            });
 }
 
 
