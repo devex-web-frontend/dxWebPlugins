@@ -1,69 +1,19 @@
 'use strict';
 
 var https = require('https');
-var prompt = require('prompt');
 var Promise = require('promise');
 var fs = require('fs');
 var path = require('path');
-
-var absoluteCredinalsPath = path.join(process.cwd(), '/credinals.json');
-var relativeCredinalsPath = path.relative(__dirname, absoluteCredinalsPath);
-
-var credinals = fs.existsSync(absoluteCredinalsPath) ? require(relativeCredinalsPath) : null;
+var auth = require('./auth.js');
 
 module.exports = {
     write: setPageContent,
     read: getPageContent
 };
 
-function createCredinalsFile(data) {
-    fs.writeFile(absoluteCredinalsPath, data, function () {
-        console.log('The file ' + absoluteCredinalsPath.toString() + ' was saved!');
-    });
-}
-
-function getAuthInfo() {
-    var promise,
-        properties = [{
-        description: 'username',
-        name: 'user'
-    }, {
-        description: 'password',
-        name: 'pass',
-        hidden: true
-    }, {
-        description: 'Save to crendinals.json? Y/N',
-        name: 'needToSave',
-        conform: function conform(res) {
-            return res === 'Y' || res === 'N';
-        }
-    }];
-
-    prompt.start();
-
-    promise = new Promise(function (resolve, reject) {
-        if (!credinals || !credinals.pass || !credinals.user) {
-            prompt.get(properties, function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    credinals = { user: res.user, pass: res.pass };
-                    if (res.needToSave === 'Y') {
-                        createCredinalsFile(JSON.stringify(credinals));
-                    }
-                    resolve(credinals);
-                }
-            });
-        } else {
-            resolve(credinals);
-        }
-    });
-
-    return promise;
-}
 function createRequest(path, method) {
     var promise = new Promise(function (resolve, reject) {
-        getAuthInfo().then(function (conf) {
+        auth.getCredinals().then(function (conf) {
             var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
             resolve({
                 host: 'confluence.in.devexperts.com',
@@ -133,6 +83,7 @@ function getPageContent(pageId) {
     var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
     return createRequest(path).then(get);
 }
+
 function composeData(pageId, newContent, respond) {
     var data = {
         id: pageId,
@@ -149,6 +100,7 @@ function composeData(pageId, newContent, respond) {
     data = JSON.stringify(data);
     return data;
 }
+
 function setPageContent(pageId, newContent) {
     var path = '/rest/api/content/' + pageId,
         data;
