@@ -6,19 +6,10 @@ var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 
 var buffer = require('./helpers/buffer.js');
+
 var pages = {
-    NumericStepper: 108139548,
-    Ololo: 108139608
-
+    NumericStepper: 108139548
 };
-
-function publishAll() {
-    process.chdir('test/out/api');
-    glob('*[!.]??.html', function (er, files) {
-        delete files[files.indexOf('index.html')];
-        files.forEach(processFile);
-    });
-}
 
 function processFile(file) {
     var name = file.slice(0, file.indexOf('.'));
@@ -29,11 +20,14 @@ function processFile(file) {
 
         var result = prepareData(buf);
         writeToConfluence(pageId, result);
+    } else {
+        handleError('No such file in config');
     }
 }
 
 function prepareData(data) {
-    var startIndex = data.indexOf('<body>') ? data.indexOf('<body>') + 7 : 0,
+
+    var startIndex = data.indexOf('<body>') ? data.indexOf('<body>') + '<body>'.length : 0,
         endIndex = data.indexOf('<nav>') ? data.indexOf('<nav>') : null;
 
     data = data.slice(startIndex, endIndex);
@@ -53,13 +47,26 @@ function prepareData(data) {
 }
 
 function writeToConfluence(pageId, data) {
-    buffer.write(pageId, data).then(function (result) {
-        console.log('Succesffuly written to ', pageId);
-    }, handleError);
+    buffer.write(pageId, data).then(function (respond) {
+        var href = composeLink(respond);
+        console.log('Succesffuly written to page ' + pageId + ' (' + href + ')');
+    })['catch'](handleError);
 }
 
 function handleError(err) {
-    console.log('Error ', err);
+    console.log('Error writing ' + err);
+}
+
+function composeLink(respond) {
+    return respond._links.base + respond._links.webui;
+}
+
+function publishAll() {
+    process.chdir('test/out/api');
+    glob('*[!.]??.html', function (er, files) {
+        delete files[files.indexOf('index.html')];
+        files.forEach(processFile);
+    });
 }
 
 publishAll();

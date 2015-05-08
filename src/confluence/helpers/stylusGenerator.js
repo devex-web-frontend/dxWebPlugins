@@ -1,13 +1,13 @@
-var fs = require('fs');
-var path = require('path');
-var cheerio = require('cheerio');
+let fs = require('fs');
+let path = require('path');
+let cheerio = require('cheerio');
 
 module.exports = {
     write : generateStylusFile
 };
 
 function createFolders(relativePath){
-    var folders = relativePath.split('/').slice(1),
+    let folders = relativePath.split('/').slice(1),
         fileName = folders.pop(),
         folderPath = process.cwd();
 
@@ -23,25 +23,25 @@ function createFolders(relativePath){
 
 function writeToFile(text, relativePath) {
 
-    var absolutePath = createFolders(relativePath);
+    let absolutePath = createFolders(relativePath);
     fs.writeFile(absolutePath, text, function (err) {
         if (err) {
             return console.log(err);
         }
-        console.log("The file " + relativePath + " was saved!");
+        console.log(`The file ${relativePath} was saved!`);
     });
 }
 
 function parseTable(string) {
-    var $ = cheerio.load(string),
+    let $ = cheerio.load(string),
         map = {};
 
     $('tr').each(function(t, elem) {
-        var colorIndex = $('td:first-child', elem).html(),
+        let colorIndex = $('td:first-child', elem).html(),
             names = '' + $('td:last-child span ', elem).text(),
             color = '' + $('td:first-child + td + td', elem).attr('style');
 
-        names = (names.split(','));
+        names = names.split(',');
         color = color.slice(('background-color: ').length, color.length - 1);
 
         names.forEach(function(name) {
@@ -56,10 +56,10 @@ function parseTable(string) {
 }
 
 function wrapHash(hashName, hash) {
-    var result = '';
+    let result = '';
     if (hashName) {
         hash = hash.slice(0, hash.length - 2) + '\n';
-        result += '$' + hashName + ' = { \n';
+        result += `$${hashName} = { \n`;
         result += hash;
         result += '};\n';
     } else {
@@ -70,14 +70,14 @@ function wrapHash(hashName, hash) {
 
 function composeLine(varName, varValue, isInHash) {
     if (isInHash) {
-        return '\t' + varName + ' : ' + varValue + ',\n';
+        return `\t${varName}: ${varValue},\n`;
     }
-    return '$' + varName + ' = ' + varValue + ';\n';
+    return `$${varName} = ${varValue};\n`;
 
 }
 
 function createPageVariables(string, name) {
-   var map = parseTable(string),
+   let map = parseTable(string),
     result = '';
 
    Object
@@ -90,7 +90,7 @@ function createPageVariables(string, name) {
 }
 
 function generateStylusFile(dataArray) {
-    var result = '';
+    let result = '';
 
     dataArray.forEach(function(page) {
         result += createPageVariables(page.data, page.name);
