@@ -44,14 +44,18 @@ function prepareData(data) {
 
 function writeToConfluence(pageId, data) {
     buffer.write(pageId, data)
-        .then(function() {
-            console.log(`Succesffuly written to ${pageId}`);
+        .then(function(respond) {
+            let href = composeLink(respond);
+            console.log(`Succesffuly written to page ${pageId} (${href})`);
         })
         .catch(handleError);
 }
 
 function handleError(err) {
     console.log(`Error writing ${err}`)
+}
+function composeLink(respond) {
+    return respond['_links'].base + respond['_links'].webui;
 }
 
 function publishAll() {
