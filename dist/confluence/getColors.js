@@ -18,8 +18,8 @@ function errorHandler(err) {
 
 function readPage(pageIndex) {
     var page = pages[pageIndex],
-        pageId,
-        pageName;
+        pageId = undefined,
+        pageName = undefined;
 
     if (!page) {
         styl.write(result);

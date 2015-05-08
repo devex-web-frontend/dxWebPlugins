@@ -1,12 +1,12 @@
-var prompt = require('prompt');
-var fs = require('fs');
-var path = require('path');
-var Promise = require('promise');
+let prompt = require('prompt');
+let fs = require('fs');
+let path = require('path');
+let Promise = require('promise');
 
-var absoluteCredinalsPath = path.join(process.cwd(), '/credinals.json');
-var relativeCredinalsPath = path.relative(__dirname, absoluteCredinalsPath);
+let absoluteCredinalsPath = path.join(process.cwd(), '/credinals.json');
+let relativeCredinalsPath = path.relative(__dirname, absoluteCredinalsPath);
 
-var credinals = fs.existsSync(absoluteCredinalsPath) ?  require(relativeCredinalsPath) : null;
+let credinals = fs.existsSync(absoluteCredinalsPath) ?  require(relativeCredinalsPath) : null;
 
 module.exports = {
     getCredinals: getAuthInfo
@@ -20,7 +20,7 @@ function createCredinalsFile(data) {
 }
 
 function getAuthInfo() {
-    var promise,
+    let promise,
         properties = [{
             description: 'username',
             name: 'user'

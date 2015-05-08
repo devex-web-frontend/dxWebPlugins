@@ -99,7 +99,7 @@ function getPageContent(pageId) {
 
 function setPageContent(pageId, newContent) {
     var path = '/rest/api/content/' + pageId,
-        data;
+        data = undefined;
 
     return getPageContent(pageId).then(function (respond) {
         data = composeData(pageId, newContent, respond);

@@ -1,8 +1,8 @@
-var https = require('https');
-var Promise = require('promise');
-var fs = require('fs');
-var path = require('path');
-var auth = require('./auth.js');
+let https = require('https');
+let Promise = require('promise');
+let fs = require('fs');
+let path = require('path');
+let auth = require('./auth.js');
 
 module.exports = {
     write: setPageContent,
@@ -10,10 +10,10 @@ module.exports = {
 };
 
 function createRequest(path, method) {
-    var promise = new Promise(function(resolve) {
+    let promise = new Promise(function(resolve) {
         auth.getCredinals()
             .then(function(conf) {
-                var auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
+                let auth = new Buffer(conf.user + ':' + conf.pass).toString('base64');
                 resolve({
                     host: 'confluence.in.devexperts.com',
                     port: 443,
@@ -35,13 +35,13 @@ function createRequest(path, method) {
 }
 
 function respondHandler(res, resolve, reject) {
-    var respond = '';
+    let respond = '';
 
     res.on('data', function(chunk) {
         respond += chunk;
     });
     res.on('end', function() {
-        var result = JSON.parse(respond);
+        let result = JSON.parse(respond);
         if (!!result.statusCode) {
             reject(result.statusCode + ': ' +result.message);
         }
@@ -63,7 +63,7 @@ function get(request){
 
 function set(request, data) {
     return new Promise(function(resolve, reject) {
-        var R = https.request(request, function (res) {
+        let R = https.request(request, function (res) {
             respondHandler(res, resolve, reject);
         });
         R.on('error', function(err) {
@@ -77,7 +77,7 @@ function set(request, data) {
 
 
 function composeData(pageId, newContent, respond) {
-    var data = {
+    let data = {
         "id": pageId,
         "body": {
             "storage": {
@@ -96,12 +96,12 @@ function composeData(pageId, newContent, respond) {
 }
 
 function getPageContent(pageId) {
-    var path = '/rest/api/content/' + pageId + '?expand=body.view,version';
+    let path = '/rest/api/content/' + pageId + '?expand=body.view,version';
     return createRequest(path).then(get);
 }
 
 function setPageContent(pageId, newContent) {
-    var path = '/rest/api/content/' + pageId,
+    let path = '/rest/api/content/' + pageId,
         data;
 
     return getPageContent(pageId)

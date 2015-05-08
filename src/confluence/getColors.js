@@ -1,7 +1,7 @@
-var buffer = require('./helpers/buffer.js');
-var styl = require('./helpers/stylusGenerator.js');
+let buffer = require('./helpers/buffer.js');
+let styl = require('./helpers/stylusGenerator.js');
 
-var pages = [{
+let pages = [{
         name: 'darkScheme',
         id: 103777451
     },{
@@ -15,7 +15,7 @@ function errorHandler(err) {
 }
 
 function readPage(pageIndex) {
-    var page = pages[pageIndex],
+    let page = pages[pageIndex],
         pageId,
         pageName;
 

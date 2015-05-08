@@ -22,7 +22,7 @@ function createCredinalsFile(data) {
 }
 
 function getAuthInfo() {
-    var promise,
+    var promise = undefined,
         properties = [{
         description: 'username',
         name: 'user'
