@@ -21,7 +21,7 @@ function createRequest(path, method) {
                     path: path,
                     method: method || "GET",
                     headers: {
-                        'Authorization': 'Basic ' + auth,
+                        'Authorization': `Basic ${auth}`,
                         'Content-Type': 'application/json'
                     },
                     rejectUnauthorized: false,
@@ -96,12 +96,12 @@ function composeData(pageId, newContent, respond) {
 }
 
 function getPageContent(pageId) {
-    let path = '/rest/api/content/' + pageId + '?expand=body.view,version';
+    let path = `/rest/api/content/${pageId}?expand=body.view,version`;
     return createRequest(path).then(get);
 }
 
 function setPageContent(pageId, newContent) {
-    let path = '/rest/api/content/' + pageId,
+    let path = `/rest/api/content/${pageId}`,
         data;
 
     return getPageContent(pageId)

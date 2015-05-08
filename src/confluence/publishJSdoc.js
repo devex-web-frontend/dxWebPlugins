@@ -45,13 +45,13 @@ function prepareData(data) {
 function writeToConfluence(pageId, data) {
     buffer.write(pageId, data)
         .then(function() {
-            console.log('Succesffuly written to ', pageId);
+            console.log(`Succesffuly written to ${pageId}`);
         })
         .catch(handleError);
 }
 
 function handleError(err) {
-    console.log('Error writing ', err)
+    console.log(`Error writing ${err}`)
 }
 
 function publishAll() {

@@ -5,13 +5,12 @@ let pages = [{
         name: 'darkScheme',
         id: 103777451
     },{
-        name: 'chartScheme',
-        id: 1048254552
+        id: 104825455
     }],
     result = [];
 
 function errorHandler(err) {
-    console.error('Error reading: ', err);
+    console.error(`Error reading: ${err}`);
 }
 
 function readPage(pageIndex) {
@@ -27,7 +26,7 @@ function readPage(pageIndex) {
 
         buffer.read(pageId)
             .then(function (respond) {
-                console.log('Succsessfully read ', pageId);
+                console.log(`Succsessfully read ${pageId}`);
                 result.push({
                     name: pageName,
                     data: respond.body.view.value

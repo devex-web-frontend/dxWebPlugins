@@ -28,7 +28,7 @@ function writeToFile(text, relativePath) {
         if (err) {
             return console.log(err);
         }
-        console.log("The file " + relativePath + " was saved!");
+        console.log(`The file ${relativePath} was saved!`);
     });
 }
 
@@ -59,7 +59,7 @@ function wrapHash(hashName, hash) {
     let result = '';
     if (hashName) {
         hash = hash.slice(0, hash.length - 2) + '\n';
-        result += '$' + hashName + ' = { \n';
+        result += `$${hashName} = { \n`;
         result += hash;
         result += '};\n';
     } else {
@@ -70,9 +70,9 @@ function wrapHash(hashName, hash) {
 
 function composeLine(varName, varValue, isInHash) {
     if (isInHash) {
-        return '\t' + varName + ' : ' + varValue + ',\n';
+        return `\t ${varName} : ${varValue},\n`;
     }
-    return '$' + varName + ' = ' + varValue + ';\n';
+    return `$${varName} = ${varValue};\n`;
 
 }
 
