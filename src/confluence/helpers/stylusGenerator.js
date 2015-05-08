@@ -41,7 +41,7 @@ function parseTable(string) {
             names = '' + $('td:last-child span ', elem).text(),
             color = '' + $('td:first-child + td + td', elem).attr('style');
 
-        names = (names.split(','));
+        names = names.split(',');
         color = color.slice(('background-color: ').length, color.length - 1);
 
         names.forEach(function(name) {
@@ -70,7 +70,7 @@ function wrapHash(hashName, hash) {
 
 function composeLine(varName, varValue, isInHash) {
     if (isInHash) {
-        return `\t ${varName} : ${varValue},\n`;
+        return `\t${varName}: ${varValue},\n`;
     }
     return `$${varName} = ${varValue};\n`;
 

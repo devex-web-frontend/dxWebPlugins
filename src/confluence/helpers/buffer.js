@@ -43,7 +43,7 @@ function respondHandler(res, resolve, reject) {
     res.on('end', function() {
         let result = JSON.parse(respond);
         if (!!result.statusCode) {
-            reject(result.statusCode + ': ' +result.message);
+            reject(`${result.statusCode} : ${result.message}`);
         }
         resolve(result);
     });

@@ -72,7 +72,7 @@ function wrapHash(hashName, hash) {
 
 function composeLine(varName, varValue, isInHash) {
     if (isInHash) {
-        return '\t ' + varName + ' : ' + varValue + ',\n';
+        return '\t' + varName + ': ' + varValue + ',\n';
     }
     return '$' + varName + ' = ' + varValue + ';\n';
 }
