@@ -76,23 +76,23 @@ function set(request, data) {
 }
 
 
-function composeData(pageId, newContent, respond) {
+function composeData(pageId, newContent, currentPage) {
     let data = {
-        "id": pageId,
-        "body": {
-            "storage": {
-                "value": newContent || "<p>This is a new page</p>",
-                "representation": "storage"
+        id: pageId,
+        type: currentPage.type,
+        title: currentPage.title,
+        version: {
+            number: currentPage.version.number + 1
+        },
+        body: {
+            storage: {
+                value: newContent || '<p>This is a new page</p>',
+                representation: 'storage'
             }
         }
     };
 
-    data.version = {number: respond.version.number + 1};
-    data.type = respond.type;
-    data.title = respond.title;
-    data = JSON.stringify(data);
-
-    return data;
+    return JSON.stringify(data);
 }
 
 function getPageContent(pageId) {
