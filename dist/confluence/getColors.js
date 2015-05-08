@@ -41,7 +41,11 @@ function readPage(pageIndex) {
 }
 
 function readAllPages() {
-    readPage(0);
+    if (pages && pages.length) {
+        readPage(0);
+    } else {
+        errorHandler('No pages in config');
+    }
 }
 
 readAllPages();

@@ -18,6 +18,8 @@ function processFile(file){
 
         let result = prepareData(buf);
         writeToConfluence(pageId, result);
+    } else {
+       handleError('No such file in config');
     }
 }
 
@@ -54,6 +56,7 @@ function writeToConfluence(pageId, data) {
 function handleError(err) {
     console.log(`Error writing ${err}`)
 }
+
 function composeLink(respond) {
     return respond['_links'].base + respond['_links'].webui;
 }
