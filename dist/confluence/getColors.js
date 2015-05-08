@@ -13,7 +13,7 @@ var pages = [{
     result = [];
 
 function errorHandler(err) {
-    console.error('Error: ', err);
+    console.error('Error reading: ', err);
 }
 
 function readPage(pageIndex) {

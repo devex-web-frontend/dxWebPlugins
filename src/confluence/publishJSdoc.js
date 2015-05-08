@@ -3,19 +3,11 @@ var fs = require('fs');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html');
 
-
 var buffer = require('./helpers/buffer.js');
+
 var pages = {
     NumericStepper: 108139548
 };
-
-function publishAll() {
-    process.chdir('test/out/api');
-    glob("*[!.]??.html",  function (er, files) {
-        delete files[files.indexOf('index.html')];
-        files.forEach(processFile);
-    })
-}
 
 function processFile(file){
     var name = file.slice(0, file.indexOf('.'));
@@ -30,7 +22,8 @@ function processFile(file){
 }
 
 function prepareData(data) {
-    var startIndex = data.indexOf('<body>') ? data.indexOf('<body>') + 7 : 0,
+
+    var startIndex = data.indexOf('<body>') ? data.indexOf('<body>') + ('<body>').length : 0,
         endIndex = data.indexOf('<nav>') ? data.indexOf('<nav>') : null;
 
     data = data.slice(startIndex, endIndex);
@@ -51,8 +44,7 @@ function prepareData(data) {
 
 function writeToConfluence(pageId, data) {
     buffer.write(pageId, data)
-        .then(function(result) {
-            console.log(result)
+        .then(function() {
             console.log('Succesffuly written to ', pageId);
         })
         .catch(handleError);
@@ -60,6 +52,14 @@ function writeToConfluence(pageId, data) {
 
 function handleError(err) {
     console.log('Error writing ', err)
+}
+
+function publishAll() {
+    process.chdir('test/out/api');
+    glob("*[!.]??.html",  function (er, files) {
+        delete files[files.indexOf('index.html')];
+        files.forEach(processFile);
+    })
 }
 
 publishAll();
