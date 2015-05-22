@@ -14,7 +14,6 @@
     "gift": "^0.6.0",
     "glob": "^5.0.5",
     "gulp-jsdoc": "0.1.4",
-    "gulp-jsdoc-to-markdown": "^1.0.2",
     "markdown2confluence": "^1.1.7",
     "promise": "^7.0.1",
     "prompt": "^0.2.14",
