@@ -1,14 +1,10 @@
 let buffer = require('./helpers/buffer.js');
 let styl = require('./helpers/stylusGenerator.js');
 
-let pages = [{
-        name: 'darkScheme',
-        id: 103777451
-    },{
-        id: 104825455
-    }],
+let pages = [],
     result = [],
-    destination = '/test.styl';
+    destination = '/',
+    doneFunction = function(){};
 
 module.exports = {
     read: read
@@ -24,40 +20,39 @@ function readPage(pageIndex) {
         pageName;
 
     if (!page) {
-        styl.write(result, destination);
+        return styl.write(result, destination).then(function(){doneFunction()});
     } else {
         pageId = page.id;
         pageName = page.name;
 
-        buffer.read(pageId)
+        return buffer.read(pageId)
             .then(function (respond) {
                 console.log(`Succsessfully read ${pageId}`);
                 result.push({
                     name: pageName,
                     data: respond.body.view.value
                 });
-                readPage(pageIndex + 1);
+                return readPage(pageIndex + 1);
             })
             .catch(function (err) {
                 errorHandler(err);
-                readPage(pageIndex + 1);
+                return readPage(pageIndex + 1);
             });
     }
 }
 
 function readAllPages() {
     if (pages && pages.length) {
-        readPage(0);
+       console.log(readPage(0));
     } else {
         errorHandler('No pages in config');
     }
 }
 
 
-function read(source, dest) {
+function read(source, dest, done) {
     pages = source;
-    if (destination) {
-        destination = dest;
-    }
-    readAllPages()
+    doneFunction = done;
+    destination = dest || 'test.styl';
+    readAllPages();
 }

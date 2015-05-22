@@ -5,7 +5,8 @@ var styl = require('./helpers/stylusGenerator.js');
 
 var pages = [],
     result = [],
-    destination = '/';
+    destination = '/',
+    doneFunction = function doneFunction() {};
 
 module.exports = {
     read: read
@@ -21,36 +22,38 @@ function readPage(pageIndex) {
         pageName = undefined;
 
     if (!page) {
-        styl.write(result, destination);
+        return styl.write(result, destination).then(function () {
+            doneFunction();
+        });
     } else {
         pageId = page.id;
         pageName = page.name;
 
-        buffer.read(pageId).then(function (respond) {
+        return buffer.read(pageId).then(function (respond) {
             console.log('Succsessfully read ' + pageId);
             result.push({
                 name: pageName,
                 data: respond.body.view.value
             });
-            readPage(pageIndex + 1);
+            return readPage(pageIndex + 1);
         })['catch'](function (err) {
             errorHandler(err);
-            readPage(pageIndex + 1);
+            return readPage(pageIndex + 1);
         });
     }
 }
 
 function readAllPages() {
     if (pages && pages.length) {
-        readPage(0);
+        console.log(readPage(0));
     } else {
         errorHandler('No pages in config');
     }
 }
 
-function read(source, dest) {
+function read(source, dest, done) {
     pages = source;
+    doneFunction = done;
     destination = dest || 'test.styl';
-
     readAllPages();
 }

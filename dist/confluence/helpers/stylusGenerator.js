@@ -3,6 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 var cheerio = require('cheerio');
+var Promise = require('promise');
 
 module.exports = {
     write: generateStylusFile
@@ -26,11 +27,15 @@ function createFolders(relativePath) {
 function writeToFile(text, relativePath) {
 
     var absolutePath = createFolders(relativePath);
-    fs.writeFile(absolutePath, text, function (err) {
-        if (err) {
-            return console.log(err);
-        }
-        console.log('The file ' + relativePath + ' was saved!');
+
+    return new Promise(function (resolve, reject) {
+        fs.writeFile(absolutePath, text, function (err) {
+            if (err) {
+                reject(console.log(err));
+            }
+            resolve();
+            console.log('The file ' + relativePath + ' was saved!');
+        });
     });
 }
 
@@ -94,6 +99,6 @@ function generateStylusFile(dataArray, destination) {
     dataArray.forEach(function (page) {
         result += createPageVariables(page.data, page.name);
     });
-    console.log(destination);
-    writeToFile(result, destination);
+
+    return writeToFile(result, destination);
 }
