@@ -7,9 +7,8 @@ let pages = [{
     },{
         id: 104825455
     }],
-    result = [];
-
-let destination = '/test/out/styl/test.styl';
+    result = [],
+    destination = '/test.styl';
 
 module.exports = {
     read: read

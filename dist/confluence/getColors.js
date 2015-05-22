@@ -3,15 +3,9 @@
 var buffer = require('./helpers/buffer.js');
 var styl = require('./helpers/stylusGenerator.js');
 
-var pages = [{
-    name: 'darkScheme',
-    id: 103777451
-}, {
-    id: 104825455
-}],
-    result = [];
-
-var destination = '/test/out/styl/test.styl';
+var pages = [],
+    result = [],
+    destination = '/';
 
 module.exports = {
     read: read
@@ -56,8 +50,7 @@ function readAllPages() {
 
 function read(source, dest) {
     pages = source;
-    if (destination) {
-        destination = dest;
-    }
+    destination = dest || 'test.styl';
+
     readAllPages();
 }

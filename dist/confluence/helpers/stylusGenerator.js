@@ -88,12 +88,12 @@ function createPageVariables(string, name) {
     return wrapHash(name, result);
 }
 
-function generateStylusFile(dataArray) {
+function generateStylusFile(dataArray, destination) {
     var result = '';
 
     dataArray.forEach(function (page) {
         result += createPageVariables(page.data, page.name);
     });
-
-    writeToFile(result, '/test/out/styl/test.styl');
+    console.log(destination);
+    writeToFile(result, destination);
 }
