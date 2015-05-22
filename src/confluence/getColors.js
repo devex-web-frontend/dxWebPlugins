@@ -1,5 +1,6 @@
 let buffer = require('./helpers/buffer.js');
 let styl = require('./helpers/stylusGenerator.js');
+let Promise = require('promise');
 
 let pages = [],
     result = [],
@@ -13,37 +14,41 @@ module.exports = {
 function errorHandler(err) {
     console.error(`Error reading: ${err}`);
 }
-
-function readPage(pageIndex) {
+function readPromise(pageIndex){
     let page = pages[pageIndex],
         pageId,
         pageName;
 
-    if (!page) {
-        return styl.write(result, destination).then(function(){doneFunction()});
-    } else {
         pageId = page.id;
         pageName = page.name;
 
-        return buffer.read(pageId)
-            .then(function (respond) {
-                console.log(`Succsessfully read ${pageId}`);
-                result.push({
-                    name: pageName,
-                    data: respond.body.view.value
-                });
-                return readPage(pageIndex + 1);
-            })
-            .catch(function (err) {
-                errorHandler(err);
-                return readPage(pageIndex + 1);
-            });
-    }
+       return new Promise(function(resolve,reject) {
+           buffer.read(pageId)
+                   .then(function(respond) {
+                       console.log(`Succsessfully read ${pageId}`);
+                       result.push({
+                           name: pageName,
+                           data: respond.body.view.value
+                       });
+                       resolve({
+                           name: pageName
+                       })
+                   })
+                .catch(resolve);
+       });
 }
 
 function readAllPages() {
     if (pages && pages.length) {
-       console.log(readPage(0));
+        var promises =  pages.map(function(page, i){
+             return readPromise(i)
+         });
+       Promise.all(promises).then(function(result){
+           //styl.write(result, destination).then(function(){doneFunction()});
+           console.log(result)
+       }, function(err){
+           console.log(err)
+       });
     } else {
         errorHandler('No pages in config');
     }
@@ -52,7 +57,7 @@ function readAllPages() {
 
 function read(source, dest, done) {
     pages = source;
-    doneFunction = done;
-    destination = dest || 'test.styl';
+    //doneFunction = done;
+    //destination = dest || 'test.styl';
     readAllPages();
 }

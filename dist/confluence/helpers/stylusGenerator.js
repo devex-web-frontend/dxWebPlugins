@@ -94,6 +94,7 @@ function createPageVariables(string, name) {
 }
 
 function generateStylusFile(dataArray, destination) {
+    console.log(dataArray);
     var result = '';
 
     dataArray.forEach(function (page) {
