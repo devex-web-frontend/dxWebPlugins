@@ -8,6 +8,9 @@ let buffer = require('./helpers/buffer.js');
 let pages = {
     NumericStepper: 108139548
 };
+module.exports = {
+    write: publishAll
+}
 
 function processFile(file){
     let name = file.slice(0, file.indexOf('.'));
@@ -68,6 +71,3 @@ function publishAll() {
         files.forEach(processFile);
     })
 }
-
-publishAll();
-

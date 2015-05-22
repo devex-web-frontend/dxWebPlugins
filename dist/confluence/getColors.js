@@ -11,6 +11,12 @@ var pages = [{
 }],
     result = [];
 
+var destination = '/test/out/styl/test.styl';
+
+module.exports = {
+    read: read
+};
+
 function errorHandler(err) {
     console.error('Error reading: ' + err);
 }
@@ -21,7 +27,7 @@ function readPage(pageIndex) {
         pageName = undefined;
 
     if (!page) {
-        styl.write(result);
+        styl.write(result, destination);
     } else {
         pageId = page.id;
         pageName = page.name;
@@ -48,4 +54,10 @@ function readAllPages() {
     }
 }
 
-readAllPages();
+function read(source, dest) {
+    pages = source;
+    if (destination) {
+        destination = dest;
+    }
+    readAllPages();
+}
