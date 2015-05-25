@@ -14,9 +14,14 @@ function errorHandler(err) {
 	console.error(('Error reading: ' + err).red);
 }
 function readPage(page) {
-	var pageId = page.id,
-	    pageName = page.name;
-
+	var pageId = undefined,
+	    pageName = undefined;
+	if (typeof page === 'number' || typeof page === 'string') {
+		pageId = page;
+	} else {
+		pageId = page.id;
+		pageName = page.name;
+	}
 	return new Promise(function (resolve, reject) {
 		buffer.read(pageId).then(function (respond) {
 			console.log(('Succsessfully read ' + pageId).green);

@@ -12,9 +12,14 @@ function errorHandler(err) {
 	console.error(`Error reading: ${err}`.red);
 }
 function readPage(page) {
-	let pageId = page.id,
+	let pageId,
+		pageName;
+	if (typeof page === 'number' || typeof page === 'string') {
+		pageId = page;
+	} else {
+		pageId = page.id;
 		pageName = page.name;
-
+	}
 	return new Promise((resolve, reject) => {
 		buffer.read(pageId)
 			.then(respond => {

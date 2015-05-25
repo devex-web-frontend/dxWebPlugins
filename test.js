@@ -6,7 +6,7 @@ var pages = [{
 	id: 104825455
 }];
 var config = [{
-	pages: pages,
+	pages: [103777451, 103777451],
 	destination:'/dark.styl'},{
 	pages: pages,
 	destination:'/light.styl'}];
