@@ -41,12 +41,15 @@ function writeToFile(text, relativePath) {
 function parseTable(string) {
 	let $ = cheerio.load(string),
 			map = {};
+
+
 	$('tbody tr').each(function(t, elem) {
+
 		let colorIndex = $('td:first-child', elem).html(),
 			names = $('td:last-child span ', elem).html() || '',
 			color = '' + $('td:first-child + td + td', elem).attr('style');
 
-		names = names.replace(new RegExp('<(/)*span>', 'g'),'').split(',');
+		names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
 		color = color.slice(('background-color: ').length, color.length - 1);
 
 		names.forEach(function(name) {
@@ -55,6 +58,7 @@ function parseTable(string) {
 				map[name] = color;
 			}
 		});
+
 	});
 
 	return map;
