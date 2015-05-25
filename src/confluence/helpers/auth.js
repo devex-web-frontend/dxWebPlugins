@@ -28,13 +28,14 @@ function getAuthInfo() {
             description: 'password',
             name: 'pass',
             hidden: true
-        },{
-            description: 'Save to crendinals.json? Y/N',
-            name: 'needToSave',
-            conform: function(res) {
-                return res === 'Y' || res === 'N';
-            }
-        }];
+        }],
+        saveCredinals = {
+                description: 'Save to crendinals.json? Y/N',
+                name: 'needToSave',
+                conform: function(res) {
+                    return res === 'Y' || res === 'N';
+                }
+            };
 
     prompt.start();
 
