@@ -3,60 +3,40 @@
 var buffer = require('./helpers/buffer.js');
 var styl = require('./helpers/stylusGenerator.js');
 var Promise = require('promise');
-
-var pages = [],
-    result = [],
-    destination = '/',
-    doneFunction = function doneFunction() {};
+var colors = require('colors');
 
 module.exports = {
-    read: read
+	read: read
 };
 
 function errorHandler(err) {
-    console.error('Error reading: ' + err);
+	console.error(('Error reading: ' + err).red);
 }
-function readPromise(pageIndex) {
-    var page = pages[pageIndex],
-        pageId = undefined,
-        pageName = undefined;
+function readPage(page) {
+	var pageId = page.id,
+	    pageName = page.name;
 
-    pageId = page.id;
-    pageName = page.name;
-
-    return new Promise(function (resolve, reject) {
-        buffer.read(pageId).then(function (respond) {
-            console.log('Succsessfully read ' + pageId);
-            result.push({
-                name: pageName,
-                data: respond.body.view.value
-            });
-            resolve({
-                name: pageName
-            });
-        })['catch'](resolve);
-    });
+	return new Promise(function (resolve, reject) {
+		buffer.read(pageId).then(function (respond) {
+			console.log(('Succsessfully read ' + pageId).green);
+			resolve({
+				name: pageName,
+				data: respond.body.view.value
+			});
+		})['catch'](reject);
+	});
 }
 
-function readAllPages() {
-    if (pages && pages.length) {
-        var promises = pages.map(function (page, i) {
-            return readPromise(i);
-        });
-        Promise.all(promises).then(function (result) {
-            //styl.write(result, destination).then(function(){doneFunction()});
-            console.log(result);
-        }, function (err) {
-            console.log(err);
-        });
-    } else {
-        errorHandler('No pages in config');
-    }
-}
+function read(pages) {
+	var destination = arguments[1] === undefined ? 'test.styl' : arguments[1];
 
-function read(source, dest, done) {
-    pages = source;
-    //doneFunction = done;
-    //destination = dest || 'test.styl';
-    readAllPages();
+	var promises = pages.map(function (page) {
+		return readPage(page);
+	});
+
+	return Promise.all(promises).then(function (result) {
+		return styl.write(result, destination);
+	})['catch'](function (err) {
+		errorHandler(err);return Promise.reject(err);
+	});
 }

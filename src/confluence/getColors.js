@@ -1,63 +1,46 @@
 let buffer = require('./helpers/buffer.js');
 let styl = require('./helpers/stylusGenerator.js');
 let Promise = require('promise');
-
-let pages = [],
-    result = [],
-    destination = '/',
-    doneFunction = function(){};
+let colors = require('colors');
 
 module.exports = {
-    read: read
+	read: read
 };
 
 function errorHandler(err) {
-    console.error(`Error reading: ${err}`);
+	console.error(`Error reading: ${err}`.red);
 }
-function readPromise(pageIndex){
-    let page = pages[pageIndex],
-        pageId,
-        pageName;
+function readPage(page) {
+	let pageId = page.id,
+		pageName = page.name;
 
-        pageId = page.id;
-        pageName = page.name;
-
-       return new Promise(function(resolve,reject) {
-           buffer.read(pageId)
-                   .then(function(respond) {
-                       console.log(`Succsessfully read ${pageId}`);
-                       result.push({
-                           name: pageName,
-                           data: respond.body.view.value
-                       });
-                       resolve({
-                           name: pageName
-                       })
-                   })
-                .catch(resolve);
-       });
-}
-
-function readAllPages() {
-    if (pages && pages.length) {
-        var promises =  pages.map(function(page, i){
-             return readPromise(i)
-         });
-       Promise.all(promises).then(function(result){
-           //styl.write(result, destination).then(function(){doneFunction()});
-           console.log(result)
-       }, function(err){
-           console.log(err)
-       });
-    } else {
-        errorHandler('No pages in config');
-    }
+	return new Promise((resolve, reject) => {
+		buffer.read(pageId)
+			.then(respond => {
+				console.log(`Succsessfully read ${pageId}`.green);
+				resolve({
+					name: pageName,
+					data: respond.body.view.value
+				});
+			})
+			.catch(reject);
+	});
 }
 
 
-function read(source, dest, done) {
-    pages = source;
-    //doneFunction = done;
-    //destination = dest || 'test.styl';
-    readAllPages();
+function read(pages, destination = 'test.styl') {
+
+	let promises = pages.map((page) => readPage(page));
+
+	return Promise
+			.all(promises)
+			.then(result => {
+				return styl.write(result, destination);
+			})
+			.catch(err => {
+				errorHandler(err);
+				return Promise.reject(err);
+			})
+
+
 }
