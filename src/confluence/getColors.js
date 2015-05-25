@@ -4,7 +4,8 @@ let Promise = require('promise');
 let colors = require('colors');
 
 module.exports = {
-	read: read
+	readToFile: readToFile,
+	readToMultipleFiles: readToMultipleFiles
 };
 
 function errorHandler(err) {
@@ -28,8 +29,7 @@ function readPage(page) {
 }
 
 
-function read(pages, destination = 'test.styl') {
-
+function readToFile(pages, destination = 'test.styl') {
 	let promises = pages.map((page) => readPage(page));
 
 	return Promise
@@ -42,5 +42,13 @@ function read(pages, destination = 'test.styl') {
 				return Promise.reject(err);
 			})
 
+
+}
+
+function readToMultipleFiles(configArray) {
+
+	let promises = configArray.map(config => readToFile(config.pages, config.destination));
+
+	return Promise.all(promises);
 
 }

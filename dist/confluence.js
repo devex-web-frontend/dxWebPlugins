@@ -4,6 +4,7 @@ var read = require('./../dist/confluence/getColors.js');
 var write = require('./../dist/confluence/publishJSdoc.js');
 
 module.exports = {
-	read: read.read,
+	readToFile: read.readToFile,
+	readToMultipleFiles: read.readToMultipleFiles,
 	write: write.write
 };

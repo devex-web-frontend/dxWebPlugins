@@ -6,7 +6,8 @@ var Promise = require('promise');
 var colors = require('colors');
 
 module.exports = {
-	read: read
+	readToFile: readToFile,
+	readToMultipleFiles: readToMultipleFiles
 };
 
 function errorHandler(err) {
@@ -27,7 +28,7 @@ function readPage(page) {
 	});
 }
 
-function read(pages) {
+function readToFile(pages) {
 	var destination = arguments[1] === undefined ? 'test.styl' : arguments[1];
 
 	var promises = pages.map(function (page) {
@@ -37,6 +38,16 @@ function read(pages) {
 	return Promise.all(promises).then(function (result) {
 		return styl.write(result, destination);
 	})['catch'](function (err) {
-		errorHandler(err);return Promise.reject(err);
+		errorHandler(err);
+		return Promise.reject(err);
 	});
+}
+
+function readToMultipleFiles(configArray) {
+
+	var promises = configArray.map(function (config) {
+		return readToFile(config.pages, config.destination);
+	});
+
+	return Promise.all(promises);
 }

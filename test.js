@@ -5,12 +5,21 @@ var pages = [{
 }, {
 	id: 104825455
 }];
+var config = [{
+	pages: pages,
+	destination:'/dark.styl'},{
+	pages: pages,
+	destination:'/light.styl'}];
+
 function done() {
 	console.log('converting process finished')
 }
 function errorHandler(err) {
 	console.log('Converting process failed:', err)
 }
-confluence.read(pages, '/test/out/test.styl')
+confluence.readToFile(pages, '/test/out/test.styl')
+		.then(done)
+		.catch(errorHandler);
+confluence.readToMultipleFiles(config)
 		.then(done)
 		.catch(errorHandler);
