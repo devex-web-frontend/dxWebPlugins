@@ -41,13 +41,12 @@ function writeToFile(text, relativePath) {
 function parseTable(string) {
 	let $ = cheerio.load(string),
 			map = {};
-
-	$('tr').each(function(t, elem) {
+	$('tbody tr').each(function(t, elem) {
 		let colorIndex = $('td:first-child', elem).html(),
-				names = '' + $('td:last-child span ', elem).text(),
-				color = '' + $('td:first-child + td + td', elem).attr('style');
+			names = $('td:last-child span ', elem).html() || '',
+			color = '' + $('td:first-child + td + td', elem).attr('style');
 
-		names = names.split(',');
+		names = names.replace(new RegExp('<(/)*span>', 'g'),'').split(',');
 		color = color.slice(('background-color: ').length, color.length - 1);
 
 		names.forEach(function(name) {
