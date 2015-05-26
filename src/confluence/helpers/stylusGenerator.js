@@ -8,9 +8,15 @@ module.exports = {
 	write: generateStylusFile
 };
 
-
+function sanitizePath(path) {
+	if (path.charAt(0) !== '/') {
+		path = '/' + path;
+	}
+	return path;
+}
 function createFolders(relativePath) {
-	let folders = relativePath.split('/').slice(1),
+
+	let folders = sanitizePath(relativePath).split('/').slice(1),
 		fileName = folders.pop(),
 		folderPath = process.cwd();
 
