@@ -11,53 +11,59 @@ var relativeCredinalsPath = path.relative(__dirname, absoluteCredinalsPath);
 var credinals = fs.existsSync(absoluteCredinalsPath) ? require(relativeCredinalsPath) : null;
 
 module.exports = {
-    getCredinals: getAuthInfo
-
+	getCredinals: getAuthInfo
 };
 
 function createCredinalsFile(data) {
-    fs.writeFile(absoluteCredinalsPath, data, function () {
-        console.log('The file ' + absoluteCredinalsPath.toString() + ' was saved!');
-    });
+	fs.writeFile(absoluteCredinalsPath, data, function () {
+		console.log('The file ' + absoluteCredinalsPath.toString() + ' was saved!');
+	});
 }
-
+/**
+ * Returns promise for getting user credinals
+ * @param {Boolean=} needToSave – whether credinals should be saved into JSON
+ * @return {Promise.<{user: String, pass: String}>}
+ */
 function getAuthInfo() {
-    var promise = undefined,
-        properties = [{
-        description: 'username',
-        name: 'user'
-    }, {
-        description: 'password',
-        name: 'pass',
-        hidden: true
-    }],
-        saveCredinals = {
-        description: 'Save to crendinals.json? Y/N',
-        name: 'needToSave',
-        conform: function conform(res) {
-            return res === 'Y' || res === 'N';
-        }
-    };
+	var needToSave = arguments[0] === undefined ? false : arguments[0];
 
-    prompt.start();
+	var properties = [{
+		description: 'username',
+		name: 'user'
+	}, {
+		description: 'password',
+		name: 'pass',
+		hidden: true
+	}],
+	    saveCredinals = {
+		description: 'Save to crendinals.json? Y/N',
+		name: 'needToSave',
+		conform: function conform(res) {
+			return res === 'Y' || res === 'N';
+		}
+	};
 
-    promise = new Promise(function (resolve, reject) {
-        if (!credinals || !credinals.pass || !credinals.user) {
-            prompt.get(properties, function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    credinals = { user: res.user, pass: res.pass };
-                    if (res.needToSave === 'Y') {
-                        createCredinalsFile(JSON.stringify(credinals));
-                    }
-                    resolve(credinals);
-                }
-            });
-        } else {
-            resolve(credinals);
-        }
-    });
+	if (needToSave) {
+		properties.saveCredinals = saveCredinals;
+	}
 
-    return promise;
+	prompt.start();
+
+	return new Promise(function (resolve, reject) {
+		if (!credinals || !credinals.pass || !credinals.user) {
+			prompt.get(properties, function (err, res) {
+				if (err) {
+					reject(err);
+				} else {
+					credinals = { user: res.user, pass: res.pass };
+					if (res.needToSave === 'Y') {
+						createCredinalsFile(JSON.stringify(credinals));
+					}
+					resolve(credinals);
+				}
+			});
+		} else {
+			resolve(credinals);
+		}
+	});
 }
