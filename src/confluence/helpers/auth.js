@@ -10,7 +10,6 @@ let credinals = fs.existsSync(absoluteCredinalsPath) ? require(relativeCredinals
 
 module.exports = {
 	getCredinals: getAuthInfo
-
 };
 
 function createCredinalsFile(data) {
@@ -18,7 +17,11 @@ function createCredinalsFile(data) {
 		console.log("The file " + absoluteCredinalsPath.toString() + " was saved!");
 	});
 }
-
+/**
+ * Returns promise for getting user credinals
+ * @param {Boolean=} needToSave – whether credinals should be saved into JSON
+ * @return {Promise.<{user: String, pass: String}>}
+ */
 function getAuthInfo(needToSave = false) {
 	let properties = [{
 			description: 'username',

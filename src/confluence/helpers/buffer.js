@@ -9,7 +9,14 @@ module.exports = {
 	read: getPageContent
 };
 
-function createRequest(path, method) {
+/**
+ * Returns promise for getting request properties
+ * @param {String} path
+ * @param {String} [method='GET']
+ * @return {Promise.<Object>}
+ */
+
+function createRequest(path, method = 'GET') {
 	let promise = new Promise(resolve => {
 		auth.getCredinals()
 			.then(conf => {
@@ -19,7 +26,7 @@ function createRequest(path, method) {
 					port: 443,
 					contentType: "application/json; charset=utf-8",
 					path: path,
-					method: method || "GET",
+					method: method,
 					headers: {
 						'Authorization': `Basic ${auth}`,
 						'Content-Type': 'application/json'
@@ -33,6 +40,12 @@ function createRequest(path, method) {
 	return promise;
 }
 
+/**
+ * Handles https respond, then calling resolve or reject methods
+ * @param {Object} res
+ * @param {Function} resolve
+ * @param {Function} reject
+ */
 function respondHandler(res, resolve, reject) {
 	let respond = '';
 
@@ -48,6 +61,11 @@ function respondHandler(res, resolve, reject) {
 	});
 }
 
+/**
+ * Returns promise for getting https GET-request data
+ * @param {String} request
+ * @return {Promise.<String>}
+ */
 function get(request) {
 
 	return new Promise((resolve, reject) => {
@@ -57,7 +75,12 @@ function get(request) {
 			.on('error', reject);
 	});
 }
-
+/**
+ * Returns promise for sending https POST-request
+ * @param {String} request
+ * @param {Object} data
+ * @return {Promise.<String>}
+ */
 function set(request, data) {
 	return new Promise((resolve, reject) => {
 		let R = https.request(request, res => {
@@ -70,7 +93,13 @@ function set(request, data) {
 
 }
 
-
+/**
+ * Returns data object for https POST request
+ * @param {String} pageId
+ * @param {String} newContent
+ * @param {Object} currentPage
+ * @return {JSON}
+ */
 function composeData(pageId, newContent, currentPage) {
 	let data = {
 		id: pageId,
@@ -89,12 +118,22 @@ function composeData(pageId, newContent, currentPage) {
 
 	return JSON.stringify(data);
 }
-
+/**
+ * Returns promise for getting confluence page content
+ * @param {String} pageId
+ * @return {Promise.<String>}
+ */
 function getPageContent(pageId) {
 	let path = `/rest/api/content/${pageId}?expand=body.view,version`;
 	return createRequest(path).then(get);
 }
 
+/**
+ * Returns promise for setting confluence page content
+ * @param {String} pageId
+ * @param {String} newContent
+ * @return {Promise.<String>}
+ */
 function setPageContent(pageId, newContent) {
 	let path = `/rest/api/content/${pageId}`,
 		data;

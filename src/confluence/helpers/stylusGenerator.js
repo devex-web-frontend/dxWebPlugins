@@ -7,13 +7,22 @@ let colors = require('colors');
 module.exports = {
 	write: generateStylusFile
 };
-
+/**
+ * Sanitizes file path to start with /
+ * @param {String} path
+ * @return {String}
+ */
 function sanitizePath(path) {
 	if (path.charAt(0) !== '/') {
 		path = '/' + path;
 	}
 	return path;
 }
+/**
+ * Creates folders for filePath and returns relative to process path to file
+ * @param {String} relativePath – path to file
+ * @return {String}
+ */
 function createFolders(relativePath) {
 
 	let folders = sanitizePath(relativePath).split('/').slice(1),
@@ -29,7 +38,12 @@ function createFolders(relativePath) {
 
 	return path.join(folderPath, fileName)
 }
-
+/**
+ * Returns promise for writing to file
+ * @param {String} text – text to write
+ * @param {String} relativePath – path to file
+ * @return {Promise.<String>}
+ */
 function writeToFile(text, relativePath) {
 
 	let absolutePath = createFolders(relativePath);
@@ -44,7 +58,11 @@ function writeToFile(text, relativePath) {
 		});
 	});
 }
-
+/**
+ * Parses HTML table into map of variables and its values
+ * @param {String} string – HTML node
+ * @return {Object.<String, string>}
+ */
 function parseTable(string) {
 	let $ = cheerio.load(string),
 		map = {};
@@ -64,13 +82,16 @@ function parseTable(string) {
 				name = name.toLowerCase().trim();
 				map[name] = color;
 			});
-
-
 	});
 
 	return map;
 }
-
+/**
+ * Returns hash
+ * @param {String} hashName
+ * @param {String} hashData – which is needed to be wrapped
+ * @return {String}
+ */
 function wrapHash(hashName, hashData) {
 	let result = '';
 	if (hashName) {
@@ -83,30 +104,51 @@ function wrapHash(hashName, hashData) {
 	}
 	return result;
 }
+/**
+ * Returns composed line for styl file
+ * @param {String} varName
+ * @param {String} varValue
+ * @param {Boolean} [isInHash=false] – does variable belong to hash
+ * @return {String}
+ */
 
-function composeLine(varName, varValue, isInHash) {
+function composeLine(varName, varValue, isInHash = false) {
 	if (isInHash) {
 		return `\t${varName}: ${varValue},\n`;
 	}
 	return `$${varName} = ${varValue};\n`;
 
 }
-
+/**
+ * Returns part of .styl file with all variables from HTML
+ * @param {String} string – HTML
+ * @param {String=} name – hash name
+ * @return {String}
+ */
 function createPageVariables(string, name) {
 	let map = parseTable(string),
 		result = '';
 
 	Object
 		.keys(map)
-		.forEach(key => {result += composeLine(key, map[key], !!name)});
+		.forEach(key => {
+			result += composeLine(key, map[key], !!name)
+		});
 
 	return wrapHash(name, result);
 }
-
+/**
+ * Returns promise for writing from confluence to .styl file
+ * @param {Array.<Object.<{data:String, name:String}>>} dataArray
+ * @param {String} destination – file path
+ * @return {Promise.<String>}
+ */
 function generateStylusFile(dataArray, destination) {
 	let result = '';
 
-	dataArray.forEach(page => {result += createPageVariables(page.data, page.name)});
+	dataArray.forEach(page => {
+		result += createPageVariables(page.data, page.name)
+	});
 
 	return writeToFile(result, destination);
 }
