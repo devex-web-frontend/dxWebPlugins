@@ -1,5 +1,5 @@
 var read = require('./../dist/confluence/getColors.js');
-var write = require('./../dist/confluence/publishJSdoc.js');
+var write = require('./../dist/confluence/publishHTML.js');
 
 module.exports = {
 	readToFile: read.readToFile,
