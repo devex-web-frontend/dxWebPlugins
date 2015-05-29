@@ -14,8 +14,6 @@
     "commander": "^2.8.1",
     "gift": "^0.6.0",
     "glob": "^5.0.5",
-    "gulp-jsdoc": "0.1.4",
-    "markdown2confluence": "^1.1.7",
     "promise": "^7.0.1",
     "prompt": "^0.2.14",
     "properties": "^1.2.1",
@@ -31,6 +29,7 @@
     "gulp-crash-sound": "0.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
-    "gulp-watch": "^4.2.4"
+    "gulp-watch": "^4.2.4",
+    "gulp-jsdoc": "0.1.4"
   }
 }
