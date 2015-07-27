@@ -38,11 +38,9 @@ function getAuthInfo(needToSave = false) {
 				return res === 'Y' || res === 'N';
 			}
 		};
-
 	if (needToSave) {
-		properties.saveCredinals = saveCredinals;
+		properties.push(saveCredinals);
 	}
-
 	prompt.start();
 
 	return new Promise((resolve, reject) => {

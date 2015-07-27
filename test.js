@@ -33,6 +33,6 @@ confluence.readToMultipleFiles(config)
 		.then(done)
 		.catch(errorHandler);
 
-confluence.writeToConfluence(pagesToWrite)
+confluence.write(pagesToWrite)
 		.then(done)
 		.catch(errorHandler);
