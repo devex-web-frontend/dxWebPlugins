@@ -18,7 +18,7 @@ module.exports = {
  * @return {String}
  */
 function composeLink(respond) {
-	return respond._links.base + respond._links.webui;
+	return respond['_links'].base + respond['_links'].webui;
 }
 /**
  * Crops HTML between body and nav tags
@@ -42,9 +42,9 @@ function prepareData(data) {
 	data = cropHTML(data);
 	return sanitizeHtml(data, {
 		transformTags: {
-			dd: sanitizeHtml.simpleTransform('div'),
-			dt: sanitizeHtml.simpleTransform('h5'),
-			dl: sanitizeHtml.simpleTransform('div')
+			'dd': sanitizeHtml.simpleTransform('div'),
+			'dt': sanitizeHtml.simpleTransform('h5'),
+			'dl': sanitizeHtml.simpleTransform('div')
 		},
 		exclusiveFilter: function exclusiveFilter(frame) {
 			return frame.attribs['class'] === 'tag-source';

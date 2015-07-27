@@ -31,7 +31,7 @@ function createRequest(path) {
 				path: path,
 				method: method,
 				headers: {
-					Authorization: 'Basic ' + auth,
+					'Authorization': 'Basic ' + auth,
 					'Content-Type': 'application/json'
 				},
 				rejectUnauthorized: false,
