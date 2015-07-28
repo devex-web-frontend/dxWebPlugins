@@ -70,7 +70,7 @@ function parseTable(string) {
 	$('tbody tr').each((t, elem) => {
 
 		let colorIndex = $('td:first-child', elem).html(),
-			names = $('td:last-child span ', elem).text() || '',
+			names = $('td:last-child', elem).text() || '',
 			color = '' + $('td:first-child + td + td', elem).attr('style');
 
 		names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');

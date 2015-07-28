@@ -42,11 +42,9 @@ function getAuthInfo() {
 			return res === 'Y' || res === 'N';
 		}
 	};
-	needToSave = true;
 	if (needToSave) {
 		properties.push(saveCredinals);
 	}
-	console.log(properties);
 	prompt.start();
 
 	return new Promise(function (resolve, reject) {
