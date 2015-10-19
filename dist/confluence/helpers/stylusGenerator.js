@@ -60,6 +60,9 @@ function writeToFile(text, relativePath) {
 		});
 	});
 }
+function addOpacity(color, opacity) {
+	return color.slice(0, color.length - 1) + ',' + opacity / 100 + ')';
+}
 /**
  * Parses HTML table into map of variables and its values
  * @param {String} string – HTML node
@@ -73,17 +76,23 @@ function parseTable(string) {
 
 		var colorIndex = $('td:first-child', elem).html(),
 		    names = $('td:last-child', elem).text() || '',
-		    color = '' + $('td:first-child + td + td', elem).attr('style');
+		    color = $('td:first-child + td + td', elem).attr('style');
 
-		names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
-		color = color.slice('background-color: '.length, color.length - 1);
+		if (!!color) {
+			names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
+			color = ('' + color).slice('background-color: '.length, color.length - 1);
 
-		names.filter(function (name) {
-			return name;
-		}).forEach(function (name) {
-			name = name.toLowerCase().trim();
-			map[name] = color;
-		});
+			names.forEach(function (name) {
+				var opacity = name.match(/(\d+)\%/);
+				var processedColor = color;
+				if (!!opacity) {
+					name = name.slice(0, opacity.index - 1);
+					processedColor = addOpacity(color, parseInt(opacity[0]));
+				}
+				name = name.replace(/ /g, '').toLowerCase().trim();
+				map[name] = processedColor;
+			});
+		}
 	});
 
 	return map;
@@ -115,7 +124,7 @@ function wrapHash(hashName, hashData) {
  */
 
 function composeLine(varName, varValue) {
-	var isInHash = arguments[2] === undefined ? false : arguments[2];
+	var isInHash = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
 	if (isInHash) {
 		return '\t' + varName + ': ' + varValue + ',\n';

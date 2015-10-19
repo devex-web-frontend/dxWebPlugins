@@ -58,6 +58,9 @@ function writeToFile(text, relativePath) {
 		});
 	});
 }
+function addOpacity(color, opacity) {
+	return color.slice(0, color.length - 1) + ',' + opacity / 100 + ')';
+}
 /**
  * Parses HTML table into map of variables and its values
  * @param {String} string – HTML node
@@ -69,20 +72,29 @@ function parseTable(string) {
 
 	$('tbody tr').each((t, elem) => {
 
-		let colorIndex = $('td:first-child', elem).html(),
-			names = $('td:last-child', elem).text() || '',
-			color = '' + $('td:first-child + td + td', elem).attr('style');
+			let colorIndex = $('td:first-child', elem).html(),
+				names = $('td:last-child', elem).text() || '',
+				color = $('td:first-child + td + td', elem).attr('style');
 
-		names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
-		color = color.slice(('background-color: ').length, color.length - 1);
+			if (!!color) {
+				names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
+				color = ('' + color).slice(('background-color: ').length, color.length - 1);
 
-		names
-			.filter(name => name)
-			.forEach(name => {
-				name = name.toLowerCase().trim();
-				map[name] = color;
-			});
-	});
+				names.forEach(name => {
+						let opacity = name.match(/(\d+)\%/);
+						let processedColor = color;
+						if (!!opacity) {
+							name = name.slice(0, opacity.index - 1);
+							processedColor = addOpacity(color, parseInt(opacity[1]));
+						}
+						name = name.replace(/ /g, '').toLowerCase().trim();
+						map[name] = processedColor;
+					});
+			}
+
+		}
+	)
+	;
 
 	return map;
 }
