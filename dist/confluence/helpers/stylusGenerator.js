@@ -60,38 +60,42 @@ function writeToFile(text, relativePath) {
 		});
 	});
 }
-function addOpacity(color, opacity) {
-	return color.slice(0, color.length - 1) + ',' + opacity / 100 + ')';
+function addOpacity(color, opacity, useHexformat) {
+	var newColor = useHexformat ? color : color.slice(color.indexOf('('), color.length - 1);
+
+	return 'rgba(' + newColor + ', ' + opacity / 100 + ')';
 }
 /**
  * Parses HTML table into map of variables and its values
  * @param {String} string – HTML node
  * @return {Object.<String, string>}
  */
-function parseTable(string) {
+function parseTable(string, useHexFormat) {
 	var $ = cheerio.load(string),
 	    map = {};
 
 	$('tbody tr').each(function (t, elem) {
+		if ($(elem).children('td').length > 1) {
+			(function () {
+				var colorIndex = $('td:first-child', elem).html(),
+				    names = $('td:last-child', elem).text() || '',
+				    hexColor = $('td:first-child + td', elem).text() || '',
+				    rgbColor = $('td:first-child + td + td', elem).attr('style') || '',
+				    color = useHexFormat ? '#' + hexColor : '' + rgbColor.slice('background-color: '.length, color.length - 1);
 
-		var colorIndex = $('td:first-child', elem).html(),
-		    names = $('td:last-child', elem).text() || '',
-		    color = $('td:first-child + td + td', elem).attr('style');
+				names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
 
-		if (!!color) {
-			names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
-			color = ('' + color).slice('background-color: '.length, color.length - 1);
-
-			names.forEach(function (name) {
-				var opacity = name.match(/(\d+)\%/);
-				var processedColor = color;
-				if (!!opacity) {
-					name = name.slice(0, opacity.index - 1);
-					processedColor = addOpacity(color, parseInt(opacity[0]));
-				}
-				name = name.replace(/ /g, '').toLowerCase().trim();
-				map[name] = processedColor;
-			});
+				names.forEach(function (name) {
+					var opacity = name.match(/(\d+)\%/);
+					var processedColor = color;
+					if (!!opacity) {
+						name = name.slice(0, opacity.index - 1);
+						processedColor = addOpacity(color, parseInt(opacity[1]), useHexFormat);
+					}
+					name = name.replace(/ /g, '').toLowerCase().trim();
+					map[name] = processedColor;
+				});
+			})();
 		}
 	});
 
@@ -137,8 +141,8 @@ function composeLine(varName, varValue) {
  * @param {String=} name – hash name
  * @return {String}
  */
-function createPageVariables(string, name) {
-	var map = parseTable(string),
+function createPageVariables(string, name, useHex) {
+	var map = parseTable(string, useHex),
 	    result = '';
 
 	Object.keys(map).forEach(function (key) {
@@ -153,11 +157,11 @@ function createPageVariables(string, name) {
  * @param {String} destination – file path
  * @return {Promise.<String>}
  */
-function generateStylusFile(dataArray, destination) {
+function generateStylusFile(dataArray, destination, useHex) {
 	var result = '';
 
 	dataArray.forEach(function (page) {
-		result += createPageVariables(page.data, page.name);
+		result += createPageVariables(page.data, page.name, useHex);
 	});
 
 	return writeToFile(result, destination);
