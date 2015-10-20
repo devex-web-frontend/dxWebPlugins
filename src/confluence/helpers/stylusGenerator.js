@@ -66,7 +66,7 @@ function writeToFile(text, relativePath) {
  * @return {Object.<String, string>}
  */
 function addOpacity(color, opacity, useHex) {
-	let newColor = useHex ? color : color.slice(color.indexOf('('), color.length - 1);
+	let newColor = useHex ? color : color.slice(color.indexOf('(') + 1, color.length - 1);
 
 	return `rgba(${newColor}, ${opacity / 100})`;
 }
