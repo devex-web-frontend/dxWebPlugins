@@ -60,8 +60,15 @@ function writeToFile(text, relativePath) {
 		});
 	});
 }
-function addOpacity(color, opacity, useHexformat) {
-	var newColor = useHexformat ? color : color.slice(color.indexOf('('), color.length - 1);
+/**
+ * Creates color value with opacity
+ * @param {String} color – color in rgb() or HEX format
+ * @param {Number} opacity – opacity in percents
+ * @param {Boolean} useHex is color in HEX format
+ * @return {Object.<String, string>}
+ */
+function addOpacity(color, opacity, useHex) {
+	var newColor = useHex ? color : color.slice(color.indexOf('('), color.length - 1);
 
 	return 'rgba(' + newColor + ', ' + opacity / 100 + ')';
 }
@@ -70,7 +77,7 @@ function addOpacity(color, opacity, useHexformat) {
  * @param {String} string – HTML node
  * @return {Object.<String, string>}
  */
-function parseTable(string, useHexFormat) {
+function parseTable(string, useHex) {
 	var $ = cheerio.load(string),
 	    map = {};
 
@@ -81,7 +88,7 @@ function parseTable(string, useHexFormat) {
 				    names = $('td:last-child', elem).text() || '',
 				    hexColor = $('td:first-child + td', elem).text() || '',
 				    rgbColor = $('td:first-child + td + td', elem).attr('style') || '',
-				    color = useHexFormat ? '#' + hexColor : '' + rgbColor.slice('background-color: '.length, color.length - 1);
+				    color = useHex ? '#' + hexColor : '' + rgbColor.slice('background-color: '.length, rgbColor.length - 1);
 
 				names = names.replace(new RegExp('<(/)*span>', 'g'), '').replace(/&#xA0;/g, '').split(',');
 
@@ -90,7 +97,7 @@ function parseTable(string, useHexFormat) {
 					var processedColor = color;
 					if (!!opacity) {
 						name = name.slice(0, opacity.index - 1);
-						processedColor = addOpacity(color, parseInt(opacity[1]), useHexFormat);
+						processedColor = addOpacity(color, parseInt(opacity[1]), useHex);
 					}
 					name = name.replace(/ /g, '').toLowerCase().trim();
 					map[name] = processedColor;
@@ -157,11 +164,11 @@ function createPageVariables(string, name, useHex) {
  * @param {String} destination – file path
  * @return {Promise.<String>}
  */
-function generateStylusFile(dataArray, destination, useHex) {
+function generateStylusFile(dataArray, destination) {
 	var result = '';
 
 	dataArray.forEach(function (page) {
-		result += createPageVariables(page.data, page.name, useHex);
+		result += createPageVariables(page.data, page.name, page.useHex);
 	});
 
 	return writeToFile(result, destination);

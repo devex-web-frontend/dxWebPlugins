@@ -14,7 +14,7 @@ function errorHandler(err) {
 /**
  * Returns promise for reading page from confluence
  * @param {Object.<{id:string|number, pageName: ?string}>} page data
- * @return {Promise.<{name: String, data: String}>}
+ * @return {Promise.<{name: String, data: String, useHex: Boolean}>}
  */
 function readPage(page) {
 	let pageId,
@@ -32,7 +32,8 @@ function readPage(page) {
 				console.log(`Succsessfully read ${pageId}`.green);
 				resolve({
 					name: pageName,
-					data: respond.body.view.value
+					data: respond.body.view.value,
+					useHex: page.useHex
 				});
 			})
 			.catch(reject);

@@ -4,7 +4,8 @@ var pagesToRead = [{
 		name: 'darkScheme',
 		id: 103777451
 	}, {
-		id: 104825455
+		id: 104825455,
+		useHex: true
 	}];
 
 var config = [{
@@ -12,6 +13,7 @@ var config = [{
 	destination: 'dark.styl'
 }, {
 	pages: pagesToRead,
+	useHex: true,
 	destination: '/light.styl'
 }];
 
@@ -33,6 +35,6 @@ confluence.readToMultipleFiles(config)
 		.then(done)
 		.catch(errorHandler);
 
-confluence.write(pagesToWrite)
-		.then(done)
-		.catch(errorHandler);
+//confluence.write(pagesToWrite)
+//		.then(done)
+//		.catch(errorHandler);

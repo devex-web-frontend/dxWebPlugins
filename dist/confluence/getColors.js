@@ -16,7 +16,7 @@ function errorHandler(err) {
 /**
  * Returns promise for reading page from confluence
  * @param {Object.<{id:string|number, pageName: ?string}>} page data
- * @return {Promise.<{name: String, data: String}>}
+ * @return {Promise.<{name: String, data: String, useHex: Boolean}>}
  */
 function readPage(page) {
 	var pageId = undefined,
@@ -33,7 +33,8 @@ function readPage(page) {
 			console.log(('Succsessfully read ' + pageId).green);
 			resolve({
 				name: pageName,
-				data: respond.body.view.value
+				data: respond.body.view.value,
+				useHex: page.useHex
 			});
 		})['catch'](reject);
 	});
@@ -46,7 +47,7 @@ function readPage(page) {
  * @return {Promise.<String>}
  */
 function readToFile(pages) {
-	var destination = arguments[1] === undefined ? 'test.styl' : arguments[1];
+	var destination = arguments.length <= 1 || arguments[1] === undefined ? 'test.styl' : arguments[1];
 
 	var promises = pages.map(function (page) {
 		return readPage(page);
